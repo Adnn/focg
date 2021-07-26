@@ -1,1 +1,1 @@
-add_subdirectory(apps/exercises/ch3-raster_images/ch3-raster_images)
+add_subdirectory(apps/ch3/exercise-raster_images)

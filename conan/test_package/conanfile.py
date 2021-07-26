@@ -8,3 +8,4 @@ class FocgTestConan(ConanFile):
         pass
 
     def test(self):
+        pass

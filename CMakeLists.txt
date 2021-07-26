@@ -7,19 +7,8 @@ project(Focg VERSION "${BUILD_VERSION}")
 # Setup cmake helpers in 'cmake' submodule
 include ("cmake/include.cmake")
 
+cmc_include_conan_configuration()
 
-##
-## Build options
-##
-
-# Common build settings
-if(NOT CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 17)
-endif()
-
-if(NOT CMAKE_CXX_EXTENSIONS)
-    set(CMAKE_CXX_EXTENSIONS OFF)
-endif()
 
 ##
 ## Include components
@@ -30,4 +19,5 @@ add_subdirectory(src)
 include(cmc-install)
 # Generates and install the top level XxxConfig.cmake file
 # with the logic to find sub-components
-cmc_install_root_component_config()
+cmc_install_root_component_config(${PROJECT_NAME})
+cmc_register_source_package(${PROJECT_NAME})

@@ -121,7 +121,7 @@ math::sdr::Rgb BayerPattern::reconstructPixel(std::size_t aColumn, std::size_t a
                                               const Image<math::sdr::Grayscale> & aFiltered) const
 {
     math::sdr::Rgb result = math::sdr::gBlack;
-    const math::Position<2, int> basePos{aColumn, aRow};
+    const math::Position<2, int> basePos{(int)aColumn, (int)aRow};
     const math::Rectangle<int> imageRect{ {0, 0}, aFiltered.dimensions() };
 
     for (int channel = 0; channel != 3; ++channel)
