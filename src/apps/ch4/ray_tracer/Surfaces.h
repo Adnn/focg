@@ -23,12 +23,25 @@ struct Surface
 };
 
 
-struct Sphere : Surface
+struct Group : public Surface
 {
     std::optional<Hit> hit(const Ray & aRay, Interval aInterval) const override;
 
     // No aggregate initialization due to virtual function
-    Sphere (std::shared_ptr<Material> aMaterial, math::Position<3> aCenter, double aRadius) :
+    Group(std::initializer_list<std::shared_ptr<Surface>> aSurfaces) :
+        surfaces{aSurfaces}
+    {}
+
+    std::vector<std::shared_ptr<Surface>> surfaces;
+};
+
+
+struct Sphere : public Surface
+{
+    std::optional<Hit> hit(const Ray & aRay, Interval aInterval) const override;
+
+    // No aggregate initialization due to virtual function
+    Sphere(std::shared_ptr<Material> aMaterial, math::Position<3> aCenter, double aRadius) :
         material(std::move(aMaterial)),
         center{std::move(aCenter)},
         radius{aRadius}
@@ -40,16 +53,29 @@ struct Sphere : Surface
 };
 
 
-struct Group : Surface
+struct Triangle : public Surface
 {
     std::optional<Hit> hit(const Ray & aRay, Interval aInterval) const override;
 
     // No aggregate initialization due to virtual function
-    Group(std::initializer_list<std::shared_ptr<Surface>> aSurfaces) :
-        surfaces{aSurfaces}
+    Triangle(std::shared_ptr<Material> aMaterial, 
+             math::Position<3> aPoint1, math::Position<3> aPoint2, math::Position<3> aPoint3) :
+        material{std::move(aMaterial)},
+        a{std::move(aPoint1)},
+        b{std::move(aPoint2)},
+        c{std::move(aPoint3)}
     {}
 
-    std::vector<std::shared_ptr<Surface>> surfaces;
+    math::UnitVec<3> getNormal() const
+    {
+        return math::UnitVec<3>{(b-a).cross(c-a)};
+    }
+
+    std::shared_ptr<Material> material;
+
+    math::Position<3> a;
+    math::Position<3> b;
+    math::Position<3> c;
 };
 
 

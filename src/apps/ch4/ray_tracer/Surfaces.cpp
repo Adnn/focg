@@ -6,12 +6,6 @@ namespace ad {
 namespace focg {
 
 
-std::optional<Hit> Sphere::hit(const Ray & aRay, Interval aInterval) const
-{
-    return intersect(aRay, *this, aInterval);
-}
-
-
 std::optional<Hit> Group::hit(const Ray & aRay, Interval aInterval) const
 {
     std::optional<Hit> result;
@@ -19,13 +13,24 @@ std::optional<Hit> Group::hit(const Ray & aRay, Interval aInterval) const
     {
         if (auto hit = element->hit(aRay, aInterval))
         {
-            aInterval.rightTrim(hit->t);
+            aInterval.trimRight(hit->t);
             result = hit;
         }
     }
     return result;
 }
 
+
+std::optional<Hit> Sphere::hit(const Ray & aRay, Interval aInterval) const
+{
+    return intersect(aRay, *this, aInterval);
+}
+
+
+std::optional<Hit> Triangle::hit(const Ray & aRay, Interval aInterval) const
+{
+    return intersect(aRay, *this, aInterval);
+}
 
 } // namespace focg
 } // namespace ad

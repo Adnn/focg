@@ -15,7 +15,7 @@ struct Interval
     double t0{0};
     double t1{std::numeric_limits<double>::max()};
 
-    bool rightTrim(double t)
+    bool trimRight(double t)
     {
         if (t>= t0 && t < t1)
         {

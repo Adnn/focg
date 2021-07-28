@@ -27,21 +27,27 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
         viewport
     };
 
+    math::Position<3> perspectivePosition{0., 100., 0.};
     focg::PerspectiveView perspective{
-        math::Position<3>{120., 100., 0.},
-        {-120., -100., -100.},
+        perspectivePosition, 
+        math::Position<3>{0., 0., -100.} - perspectivePosition,
         {0., 1., 0.},
         viewport,
-        100
+        100 
     };
 
     math::hdr::Rgb sphereSpecularColor{math::hdr::gWhite * 0.5};
     double colorIntensity = 0.7;
     auto cyanMaterial = std::make_shared<focg::Material>(
         focg::Material{math::hdr::gCyan*colorIntensity, math::hdr::gCyan*colorIntensity, sphereSpecularColor, 75});
+
     auto magentaMaterial = std::make_shared<focg::Material>(*cyanMaterial);
     magentaMaterial->ambientColor = magentaMaterial->diffuseColor = math::hdr::gMagenta*colorIntensity;
     magentaMaterial->specularColor = math::hdr::gBlack;
+
+    auto blueMaterial = std::make_shared<focg::Material>(*cyanMaterial);
+    blueMaterial->ambientColor = blueMaterial->diffuseColor = math::hdr::Rgb{77./255, 100./255, 141./255};
+    blueMaterial->specularColor = math::hdr::gWhite;
 
     auto root = std::make_shared<focg::Group>(focg::Group{
             std::make_shared<focg::Sphere>(
@@ -52,6 +58,11 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
                 magentaMaterial,
                 math::Position<3>{60., 0., -100.},
                 50.),
+            std::make_shared<focg::Triangle>(
+                blueMaterial,
+                math::Position<3>{-360., -50., 0.},
+                math::Position<3>{360., -50., 0.},
+                math::Position<3>{0., -50., -500.}),
     });
 
     math::hdr::Rgb lightIntensity{math::hdr::gWhite * 0.5};
@@ -73,7 +84,8 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
         math::hdr::Rgb{math::hdr::gWhite * 0.5}
     };
 
-    rayTrace(scene, orthographic).saveFile(aImagePath);
+    //rayTrace(scene, orthographic).saveFile(aImagePath);
+    rayTrace(scene, perspective).saveFile(aImagePath);
 }
 
 int main(int argc, char ** argv)

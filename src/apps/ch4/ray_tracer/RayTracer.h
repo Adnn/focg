@@ -33,6 +33,10 @@ ad::Image<> rayTrace(const Scene & aScene, const View & aView)
                                               aView.getPosition(),
                                               aScene.ambientLight, aScene.lights.begin(), aScene.lights.end()));
             }
+            else
+            {
+                image.at(i, j) = to_sdr(aScene.backgroundColor);
+            }
         }
     }
 
