@@ -24,8 +24,8 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
         }
     };
 
-    math::hdr::Rgb sphereColor{0.2, 0.2, 0.6};
-    math::hdr::Rgb sphereSpecularColor{0.3, 0.3, 0.6};
+    math::hdr::Rgb sphereColor{0.3, 0.3, 0.5};
+    math::hdr::Rgb sphereSpecularColor{0.7, 0.7, 0.7};
     auto material = std::make_shared<focg::Material>(focg::Material{sphereColor, sphereColor, sphereSpecularColor, 25});
     focg::Scene scene{
         focg::Sphere{
@@ -34,9 +34,11 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
             50.,
         },
         std::vector<focg::PointLight>{
-            {math::hdr::Rgb{0.8, 0.8, 0.8}, math::Position<3>{60., 30., 0.}},
+            {math::hdr::Rgb{0., 0., 0.9}, math::Position<3>{100., 50., 0.}},
+            {math::hdr::Rgb{0.9, 0., 0.}, math::Position<3>{-100., 50., 0.}},
+            {math::hdr::Rgb{0., 0.9, 0.}, math::Position<3>{0., -120., 0.}},
         },
-        math::hdr::Rgb{math::hdr::gWhite * 0.7}
+        math::hdr::Rgb{math::hdr::gWhite * 0.5}
     };
 
     rayTrace(scene, orthographic).saveFile(aImagePath);
