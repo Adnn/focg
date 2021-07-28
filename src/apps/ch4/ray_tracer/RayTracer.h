@@ -1,5 +1,8 @@
+#pragma once
+
 #include "Hit.h"
-#include "Sphere.h"
+#include "Scene.h"
+#include "Shading.h"
 #include "View.h"
 
 #include <arte/Image.h>
@@ -16,9 +19,10 @@ Hit make_hit(const Ray & aRay, const Sphere & aSphere, double t)
     math::Position<3> hitPoint = aRay(t);
     return Hit{
         t,
-        math::UnitVec<3>::make_fromUnitLength((aRay(t) - aSphere.center) / aSphere.radius)
+        hitPoint,
+        math::UnitVec<3>::make_fromUnitLength((aRay(t) - aSphere.center) / aSphere.radius),
+        aSphere.material
     };
-
 }
 
 inline std::optional<Hit> intersect(const Ray & aRay, const Sphere & aSphere, Interval aInterval)
@@ -44,32 +48,35 @@ inline std::optional<Hit> intersect(const Ray & aRay, const Sphere & aSphere, In
         auto ta = (- d.dot(emc) - std::sqrt(discriminant))/ d.dot(d);
         auto tb = (- d.dot(emc) + std::sqrt(discriminant))/ d.dot(d);
 
-        if (auto tmin = std::min(ta, tb); tmin < aInterval.t1)
+        // Only hit on tmin (i.e. no hit if the camera is inside the sphere)
+        if (auto tmin = std::min(ta, tb); aInterval.rightTrim(tmin))
         {
             return make_hit(aRay, aSphere, tmin);
         }
     }
 
-    // Fall through mean no hit
+    // Fall through means no hit
     return {};
-
 }
 
-using Scene = Sphere;
 
 ad::Image<> rayTrace(const Scene & aScene, const View & aView)
 {
     math::Size<2, int> resolution = aView.getResolution();
-    ad::Image<> image{resolution, math::sdr::gBlack};
+    ad::Image<> image{resolution, math::sdr::gWhite};
     Interval interval;
 
-    for (int i = 0; i != resolution.width(); ++i)
+    for (int j = 0; j != resolution.height(); ++j)
     {
-        for (int j = 0; j != resolution.height(); ++j)
+        for (int i = 0; i != resolution.width(); ++i)
         {
-            if (auto hit = intersect(aView.getRay(i, j), aScene, interval))
+            // The image origin is top-left, the ray tracer viewport is bottom-left
+            // we take j in the image space, so it corresponds to the viewspace coordinate height-j.
+            if (auto hit = intersect(aView.getRay(i, resolution.height()-j), aScene.sphere, interval))
             {
-                image.at(i, j) = math::sdr::gWhite;
+                image.at(i, j) = to_sdr(shade(hit->position, hit->normal, *(hit->material),
+                                              aView.getPosition(),
+                                              aScene.ambientLight, aScene.lights.begin(), aScene.lights.end()));
             }
         }
     }
@@ -80,5 +87,3 @@ ad::Image<> rayTrace(const Scene & aScene, const View & aView)
 
 } // namespace focg
 } // namespace ad
-
-

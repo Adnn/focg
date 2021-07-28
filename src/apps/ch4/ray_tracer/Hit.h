@@ -1,6 +1,10 @@
 #pragma once
 
+#include "Material.h"
+
 #include <math/Vector.h>
+
+#include <memory>
 
 
 namespace ad {
@@ -13,7 +17,7 @@ struct Interval
 
     bool rightTrim(double t)
     {
-        if (t < t1)
+        if (t>= t0 && t < t1)
         {
             t1 = t;
             return true;
@@ -26,8 +30,9 @@ struct Interval
 struct Hit
 {
     double t;
+    math::Position<3> position;
     math::UnitVec<3> normal;
-    // Material
+    std::shared_ptr<Material> material;
 };
 
 } // namespace focg

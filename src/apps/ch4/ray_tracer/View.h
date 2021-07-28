@@ -39,6 +39,9 @@ public:
 
     virtual Ray getRay(std::size_t i, std::size_t j) const = 0;
 
+    math::Position<3> getPosition() const
+    { return mEyePoint; }
+
     math::Size<2, int> getResolution() const
     { return mImage.resolution; }
 

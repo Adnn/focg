@@ -2,9 +2,13 @@ set(TARGET_NAME ch4-ray_tracer)
 
 set(${TARGET_NAME}_HEADERS
     Hit.h
+    Light.h
+    Material.h
     Ray.h
     RayTracer.h
-    Sphere.h
+    Scene.h
+    Shading.h
+    Surfaces.h
     View.h
 )
 
