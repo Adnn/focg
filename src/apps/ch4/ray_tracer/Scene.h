@@ -12,7 +12,7 @@ namespace focg {
 
 struct Scene
 {
-    Sphere sphere;
+    std::shared_ptr<Surface> geometry;
     std::vector<PointLight> lights;
     math::hdr::Rgb ambientLight{math::hdr::gWhite * 0.5};
 };

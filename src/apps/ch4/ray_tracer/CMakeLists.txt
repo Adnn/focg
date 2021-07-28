@@ -2,6 +2,7 @@ set(TARGET_NAME ch4-ray_tracer)
 
 set(${TARGET_NAME}_HEADERS
     Hit.h
+    Intersect.h
     Light.h
     Material.h
     Ray.h
@@ -14,6 +15,8 @@ set(${TARGET_NAME}_HEADERS
 
 set(${TARGET_NAME}_SOURCES
     main.cpp
+
+    Surfaces.cpp
 )
 
 add_executable(${TARGET_NAME}
