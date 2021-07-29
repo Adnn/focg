@@ -31,6 +31,7 @@ ad::Image<> rayTrace(const Scene & aScene, const View & aView)
             {
                 image.at(i, j) = to_sdr(shade(hit->position, hit->normal, *(hit->material),
                                               aView.getPosition(),
+                                              aScene,
                                               aScene.ambientLight, aScene.lights.begin(), aScene.lights.end()));
             }
             else

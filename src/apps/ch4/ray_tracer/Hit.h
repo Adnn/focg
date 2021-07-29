@@ -24,6 +24,8 @@ struct Interval
         }
         return false;
     }
+
+    static constexpr double gEpsilon{0.001};
 };
 
 
