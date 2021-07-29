@@ -12,6 +12,11 @@ namespace focg {
 
 struct Scene
 {
+    std::optional<Hit> hit(const Ray& aRay, Interval aInterval) const
+    {
+        return geometry->hit(aRay, aInterval); 
+    }
+
     std::shared_ptr<Surface> geometry;
     std::vector<PointLight> lights;
     math::hdr::Rgb ambientLight{math::hdr::gWhite * 0.5};

@@ -39,7 +39,7 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
     math::hdr::Rgb sphereSpecularColor{math::hdr::gWhite * 0.5};
     double colorIntensity = 0.7;
     auto cyanMaterial = std::make_shared<focg::Material>(
-        focg::Material{math::hdr::gCyan*colorIntensity, math::hdr::gCyan*colorIntensity, sphereSpecularColor, 75});
+        focg::Material{math::hdr::gCyan*colorIntensity, math::hdr::gCyan*colorIntensity, sphereSpecularColor, 100});
 
     auto magentaMaterial = std::make_shared<focg::Material>(*cyanMaterial);
     magentaMaterial->ambientColor = magentaMaterial->diffuseColor = math::hdr::gMagenta*colorIntensity;
@@ -49,6 +49,9 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
     blueMaterial->ambientColor = blueMaterial->diffuseColor = math::hdr::Rgb{77./255, 100./255, 141./255};
     blueMaterial->specularColor = math::hdr::gWhite*0.8;
     blueMaterial->phongExponent = 100;
+    blueMaterial->reflectionColor = math::hdr::gWhite * 0.4;
+
+    cyanMaterial->reflectionColor = math::hdr::gCyan*0.1;
 
     auto root = std::make_shared<focg::Group>(focg::Group{
             std::make_shared<focg::Sphere>(
@@ -61,12 +64,13 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
                 50.),
             std::make_shared<focg::Triangle>(
                 blueMaterial,
-                math::Position<3>{-360., -50., 0.},
-                math::Position<3>{360., -50., 0.},
+                math::Position<3>{-360., -50., 100.},
+                math::Position<3>{360., -50., 100.},
                 math::Position<3>{0., -50., -360.}),
     });
 
-    math::hdr::Rgb lightIntensity{math::hdr::gWhite * 0.5};
+    //math::hdr::Rgb lightIntensity{math::hdr::gWhite * 0.5};
+    math::hdr::Rgb ambientLight{math::hdr::gWhite * 0.3};
     focg::Scene scene{
         std::move(root),
         std::vector<focg::PointLight>{
@@ -78,12 +82,12 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
             //{lightIntensity, math::Position<3>{-200., 100., 0.}},
             //{lightIntensity, math::Position<3>{0., -240., 0.}},
 
-            {math::hdr::gWhite * 0.7, math::Position<3>{-3000., 2000., -50.}},
+            {math::hdr::gWhite * 0.6, math::Position<3>{-3000., 2000., 800.}},
             {math::hdr::gWhite * 0.3, math::Position<3>{0., 0., 1000.}},
             {math::hdr::gWhite * 0.45, math::Position<3>{3000., 10000., 0.}},
 
         },
-        math::hdr::Rgb{math::hdr::gWhite * 0.5}
+        ambientLight 
     };
 
     //rayTrace(scene, orthographic).saveFile(aImagePath);
