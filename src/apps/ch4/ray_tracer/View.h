@@ -33,7 +33,7 @@ public:
          math::Vec<3> aUpDirection,
          Image aImage) :
         mEyePoint{aEyePosition},
-        mBase{math::OrthonormalBase<3>::make_fromTwoVectors(-aViewDirection, aUpDirection)},
+        mBase{math::OrthonormalBase<3>::MakeFromTwoVectors(-aViewDirection, aUpDirection)},
         mImage{std::move(aImage)}
     {}
 

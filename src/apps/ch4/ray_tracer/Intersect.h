@@ -16,7 +16,7 @@ inline Hit make_hit(const Ray & aRay, const Sphere & aSphere, double t)
     return Hit{
         t,
         hitPoint,
-        math::UnitVec<3>::make_fromUnitLength((aRay(t) - aSphere.center) / aSphere.radius),
+        math::UnitVec<3>::MakeFromUnitLength((aRay(t) - aSphere.center) / aSphere.radius),
         aSphere.material
     };
 }
