@@ -1,3 +1,4 @@
 add_subdirectory(apps/ch3/exercise-raster_images)
 add_subdirectory(apps/ch4/ray_tracer)
 add_subdirectory(apps/ch7/rasterizer_wireframe)
+add_subdirectory(apps/ch8/graphics_pipeline)
