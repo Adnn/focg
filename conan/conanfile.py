@@ -10,7 +10,7 @@ class FocgConan(ConanFile):
     name = "focg"
     license = "MIT License"
     url = "https://github.com/Adnn/focg"
-    description = "Implementation for programs and exercies from 'Fundamentals of Computer Graphics' book."
+    description = "Implementation for programs and exercises from 'Fundamentals of Computer Graphics' book."
     #topics = ("", "", ...)
     settings = ("os", "compiler", "build_type", "arch")
     options = {

@@ -91,14 +91,14 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
     };
 
     //rayTrace(scene, orthographic).saveFile(aImagePath);
-    rayTrace(scene, perspective).saveFile(aImagePath);
+    rayTrace(scene, perspective).saveFile(aImagePath / "ch4_raytraced.ppm");
 }
 
 int main(int argc, char ** argv)
 {
     if (argc != 2)
     {
-        std::cerr << "Usage: " << argv[0] << " output_image_path\n";
+        std::cerr << "Usage: " << argv[0] << " output_image_folder\n";
         return EXIT_FAILURE;
     }
 
