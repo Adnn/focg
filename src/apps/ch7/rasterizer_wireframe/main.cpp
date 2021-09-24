@@ -42,7 +42,7 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
         focg::orthographicProjection(math::Box<double>{ {0., 0., 300.}, {300., 300., 300.} })
         * focg::viewportTransform(aResolution)
         ;
-    rasterize(scene, viewingTransform, aResolution).saveFile(aImagePath / "ch5_rasterized_ortho.ppm");
+    rasterize(scene, viewingTransform, aResolution).saveFile(aImagePath / "ch7_rasterized_ortho.ppm");
 
     math::Position<3> cameraPosition{100., 250., 300.};
     math::Vec<3> gazeDirection = math::Position<3>{150., 150., 150.} - cameraPosition;
@@ -52,20 +52,20 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
         * focg::orthographicProjection(math::Box<double>{ {-150., -150., 0.}, {300., 300., 300.} })
         * focg::viewportTransform(aResolution)
         ;
-    rasterize(scene, viewingTransform, aResolution).saveFile(aImagePath / "ch5_rasterized_ortho_moved.ppm");
+    rasterize(scene, viewingTransform, aResolution).saveFile(aImagePath / "ch7_rasterized_ortho_moved.ppm");
 
     math::Matrix<4, 4> perspectiveViewingTransform =
           focg::cameraTransform(cameraPosition, gazeDirection)
         * focg::perspectiveProjection(math::Box<double>{ {-150., -150., -200.}, {300., 300., 300.} })
         * focg::viewportTransform(aResolution)
         ;
-    rasterize(scene, perspectiveViewingTransform, aResolution).saveFile(aImagePath / "ch5_rasterized_perpsective.ppm");
+    rasterize(scene, perspectiveViewingTransform, aResolution).saveFile(aImagePath / "ch7_rasterized_perpsective.ppm");
 
     perspectiveViewingTransform =
           focg::cameraTransform(cameraPosition, gazeDirection)
         * focg::perspectiveToViewport(-200., -500., math::Degree<double>{75.}, aResolution)
         ;
-    rasterize(scene, perspectiveViewingTransform, aResolution).saveFile(aImagePath / "ch5_rasterized_perpsective_fov.ppm");
+    rasterize(scene, perspectiveViewingTransform, aResolution).saveFile(aImagePath / "ch7_rasterized_perpsective_fov.ppm");
 }
 
 int main(int argc, char ** argv)

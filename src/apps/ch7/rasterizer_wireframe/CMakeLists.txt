@@ -1,4 +1,4 @@
-set(TARGET_NAME ch5-rasterizer_wireframe)
+set(TARGET_NAME ch7-rasterizer_wireframe)
 
 set(${TARGET_NAME}_HEADERS
     DrawLine.h
