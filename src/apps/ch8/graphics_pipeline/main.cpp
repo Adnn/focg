@@ -70,9 +70,9 @@ void rgbTriangle(filesystem::path aImagePath, math::Size<2, int> aResolution)
 }
 
 
-void clipping(filesystem::path aImagePath, math::Size<2, int> aResolution)
+focg::Scene lineClipping()
 {
-    focg::Scene scene{
+    return focg::Scene{
         { // vector
             // clip left
             { {-400., 400.}, {600., 500.} },
@@ -86,9 +86,27 @@ void clipping(filesystem::path aImagePath, math::Size<2, int> aResolution)
             // clip front and back
             { {200., 180., 1000., 1.}, {600., 80., -1000., 1.} },
         }};
+}
 
-    traversePipeline(scene, aResolution).saveFile(aImagePath / "ch8_clipping.ppm",
-                                                  ImageOrientation::InvertVerticalAxis);
+
+focg::Scene triangleClipping()
+{
+    focg::Scene scene;
+    scene.triangles = {
+        {/*triangle*/
+            { {-100., 300., 0., 1.}, math::sdr::gRed },
+            { { 500., 300., 0., 1.}, math::sdr::gGreen },
+            { { 400., 500., 0., 1.}, math::sdr::gBlue },
+        }
+    };
+    return scene;
+}
+
+
+void renderImage(const focg::Scene & aScene, filesystem::path aImageFilePath, math::Size<2, int> aResolution)
+{
+    traversePipeline(aScene, aResolution)
+        .saveFile(aImageFilePath, ImageOrientation::InvertVerticalAxis);
 }
 
 
@@ -96,7 +114,9 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
 {
     lineTest(aImagePath, aResolution);
     rgbTriangle(aImagePath, aResolution);
-    clipping(aImagePath, aResolution);
+
+    renderImage(lineClipping(),     aImagePath / "ch8_clipping_lines.ppm",     aResolution);
+    renderImage(triangleClipping(), aImagePath / "ch8_clipping_triangles.ppm", aResolution);
 }
 
 int main(int argc, char ** argv)

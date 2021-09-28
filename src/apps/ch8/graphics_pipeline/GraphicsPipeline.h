@@ -35,6 +35,14 @@ inline Image<> traversePipeline(const Scene & aScene, math::Size<2, int> aResolu
         }
     }
 
+    for (const auto & triangle : aScene.triangles)
+    {
+        for (const auto & triangle : clip(triangle, volume))
+        {
+            rasterizeIncremental(triangle, image);
+        }
+    }
+
     return image;
 }
 
