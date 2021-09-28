@@ -80,6 +80,11 @@ void clipping(filesystem::path aImagePath, math::Size<2, int> aResolution)
             { {400., 400.}, {11700., 700.} },
             // clip top and bottom
             { {400., -400.}, {700., 5000.} },
+
+            // no clip
+            { {200., 200.}, {600., 100.} },
+            // clip front and back
+            { {200., 180., 1000., 1.}, {600., 80., -1000., 1.} },
         }};
 
     traversePipeline(scene, aResolution).saveFile(aImagePath / "ch8_clipping.ppm",

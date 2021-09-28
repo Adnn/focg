@@ -74,18 +74,18 @@ struct ViewVolume
                 HVec{0., -1., 0., 0.},
                 math::homogeneous::makePosition(aBox.topRightBack()),
             },
-            //Plane{ // Front
-            //    [](HPos aPos, const ViewVolume & aVolume) -> double
-            //    { return -aPos.z() + aVolume.n * aPos.w(); },
-            //    HVec{0., 0., -1., 0.},
-            //    math::homogeneous::makePosition(aBox.bottomLeftFront()),
-            //},
-            //Plane{ // Back
-            //    [](HPos aPos, const ViewVolume & aVolume) -> double
-            //    { return aPos.z() - aVolume.f * aPos.w(); },
-            //    HVec{0., 0., 1., 0.},
-            //    math::homogeneous::makePosition(aBox.topRightBack()),
-            //},
+            Plane{ // Front
+                [](HPos aPos, const ViewVolume & aVolume) -> double
+                { return aPos.z() - aVolume.n * aPos.w(); },
+                HVec{0., 0., -1., 0.},
+                math::homogeneous::makePosition(aBox.bottomLeftFront()),
+            },
+            Plane{ // Back
+                [](HPos aPos, const ViewVolume & aVolume) -> double
+                { return -aPos.z() + aVolume.f * aPos.w(); },
+                HVec{0., 0., 1., 0.},
+                math::homogeneous::makePosition(aBox.topRightBack()),
+            },
         }
     {}
 
@@ -99,7 +99,7 @@ struct ViewVolume
         return planes[aPlaneId].solveForT(a, b);
     }
 
-    static constexpr std::size_t gPlanesCount = 4;
+    static constexpr std::size_t gPlanesCount = 6;
     double l, r, t, b, n, f;
     std::array<Plane, gPlanesCount> planes;
 };
