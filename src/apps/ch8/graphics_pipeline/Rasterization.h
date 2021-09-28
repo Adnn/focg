@@ -41,7 +41,7 @@ void rasterizeLine(
         for (int y = std::nearbyint(a.y()); y >= std::nearbyint(b.y()); --y)
         {
             aRaster.at(x, y) = aColor;
-            if (f({x+0.5, y+1., 0., 1.}) < 0)
+            if (f({x+0.5, y-1., 0., 1.}) < 0)
             {
                 ++x;
             }
@@ -53,7 +53,7 @@ void rasterizeLine(
         for (int x = std::nearbyint(a.x()); x <= std::nearbyint(b.x()); ++x)
         {
             aRaster.at(x, y) = aColor;
-            if (f({x+1., y+0.5, 0., 1.}) > 0)
+            if (f({x+1., y-0.5, 0., 1.}) > 0)
             {
                 --y;
             }
