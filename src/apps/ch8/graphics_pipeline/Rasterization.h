@@ -140,13 +140,13 @@ void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
     auto fb = aTriangle.getFb();
     auto fc = aTriangle.getFc();
 
-    const double xmin = aTriangle.xmin();
-    const double ymin = aTriangle.ymin();
+    const double xMinRound = std::nearbyint(aTriangle.xmin());
+    const double yMinRound = std::nearbyint(aTriangle.ymin());
 
     math::Vec<3, double> previousNumerators{
-        fa({xmin, ymin, 0., 1.}),
-        fb({xmin, ymin, 0., 1.}),
-        fc({xmin, ymin, 0., 1.}) 
+        fa({xMinRound, yMinRound, 0., 1.}),
+        fb({xMinRound, yMinRound, 0., 1.}),
+        fc({xMinRound, yMinRound, 0., 1.}) 
     };
 
     const math::Vec<3, double> denominators{
@@ -170,11 +170,11 @@ void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
     math::Vec<3, double> numerators = previousNumerators;
 
     // Increments
-    for (auto y = static_cast<int>(std::nearbyint(ymin));
+    for (auto y = static_cast<int>(yMinRound);
          y <= static_cast<int>(std::nearbyint(aTriangle.ymax()));
          ++y)
     {
-        for (auto x = static_cast<int>(std::nearbyint(xmin));
+        for (auto x = static_cast<int>(xMinRound);
              x <= static_cast<int>(std::nearbyint(aTriangle.xmax()));
              ++x)
         {
