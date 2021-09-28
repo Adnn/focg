@@ -105,7 +105,10 @@ struct ViewVolume
 };
 
 
-inline std::optional<std::pair<HPos, HPos>> clip_impl(HPos a, HPos b,
+//
+// Lines
+//
+inline std::optional<Line> clip_impl(HPos a, HPos b,
                                      const ViewVolume & aVolume,
                                      std::size_t aStartingPlane)
 {
@@ -135,22 +138,13 @@ inline std::optional<std::pair<HPos, HPos>> clip_impl(HPos a, HPos b,
             }
         }
     }
-    return std::make_pair(a, b);
+    return Line{a, b};
 }
 
 
 inline std::optional<Line> clip(Line aLine, const ViewVolume & aVolume)
 {
-    HPos a = math::homogeneous::makePosition(ad::math::Position<3>{aLine.pointA, 0.});
-    HPos b = math::homogeneous::makePosition(ad::math::Position<3>{aLine.pointB, 0.});
-    if (auto line = clip_impl(a, b, aVolume, 0))
-    {
-        return Line{
-            {line->first.x(),  line->first.y()},
-            {line->second.x(), line->second.y()},
-        };
-    }
-    return {};
+    return clip_impl(aLine.pointA, aLine.pointB, aVolume, 0);
 }
 
 

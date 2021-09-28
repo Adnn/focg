@@ -59,9 +59,9 @@ void rgbTriangle(filesystem::path aImagePath, math::Size<2, int> aResolution)
     focg::Scene scene;
     scene.triangles = {
         {/*triangle*/
-            { {300., 300.}, math::sdr::gRed },
-            { {500., 300.}, math::sdr::gGreen },
-            { {400., 500.}, math::sdr::gBlue },
+            { {300., 300., 0., 1.}, math::sdr::gRed },
+            { {500., 300., 0., 1.}, math::sdr::gGreen },
+            { {400., 500., 0., 1.}, math::sdr::gBlue },
         }
     };
 

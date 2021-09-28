@@ -22,8 +22,8 @@ void rasterizeLine(
     T_raster & aRaster,
     const math::sdr::Rgb aColor = math::sdr::gWhite)
 {
-    Pos & a = aLine.pointA;
-    Pos & b = aLine.pointB;
+    HPos & a = aLine.pointA;
+    HPos & b = aLine.pointB;
 
     if (a.x() > b.x())
     {
@@ -41,7 +41,7 @@ void rasterizeLine(
         for (int y = std::nearbyint(a.y()); y >= std::nearbyint(b.y()); --y)
         {
             aRaster.at(x, y) = aColor;
-            if (f({x+0.5, y+1.}) < 0)
+            if (f({x+0.5, y+1., 0., 1.}) < 0)
             {
                 ++x;
             }
@@ -53,7 +53,7 @@ void rasterizeLine(
         for (int x = std::nearbyint(a.x()); x <= std::nearbyint(b.x()); ++x)
         {
             aRaster.at(x, y) = aColor;
-            if (f({x+1., y+0.5}) > 0)
+            if (f({x+1., y+0.5, 0., 1.}) > 0)
             {
                 --y;
             }
@@ -65,7 +65,7 @@ void rasterizeLine(
         for (int x = std::nearbyint(a.x()); x <= std::nearbyint(b.x()); ++x)
         {
             aRaster.at(x, y) = aColor;
-            if (f({x+1., y+0.5}) < 0)
+            if (f({x+1., y+0.5, 0., 1.}) < 0)
             {
                 ++y;
             }
@@ -77,7 +77,7 @@ void rasterizeLine(
         for (int y = std::nearbyint(a.y()); y <= std::nearbyint(b.y()); ++y)
         {
             aRaster.at(x, y) = aColor;
-            if (f({x+0.5, y+1.}) > 0)
+            if (f({x+0.5, y+1., 0., 1.}) > 0)
             {
                 ++x;
             }
@@ -90,7 +90,7 @@ template <class T_raster>
 void rasterize(const Triangle & aTriangle, T_raster & aRaster)
 {
     // Use to assign exactly tangent pixels on adjacent triangles (p 168)
-    const Pos offscreenPoint{-1., -1.};
+    const HPos offscreenPoint{-1., -1., 0., 1.};
 
     auto fa = aTriangle.getFa();
     auto fb = aTriangle.getFb();
@@ -108,9 +108,9 @@ void rasterize(const Triangle & aTriangle, T_raster & aRaster)
              x <= static_cast<int>(std::nearbyint(aTriangle.xmax()));
              ++x)
         {
-            double alpha = fa({(double)x, (double)y}) / falpha;
-            double beta  = fb({(double)x, (double)y}) / fbeta;
-            double gamma = fc({(double)x, (double)y}) / fgamma;
+            double alpha = fa({(double)x, (double)y, 0., 1.}) / falpha;
+            double beta  = fb({(double)x, (double)y, 0., 1.}) / fbeta;
+            double gamma = fc({(double)x, (double)y, 0., 1.}) / fgamma;
 
             if (alpha >= 0. && beta >= 0. && gamma >= 0.)
             {
@@ -134,7 +134,7 @@ template <class T_raster>
 void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
 {
     // Use to assign exactly tangent pixels on adjacent triangles (p 168)
-    const Pos offscreenPoint{-1., -1.};
+    const HPos offscreenPoint{-1., -1., 0., 1.};
 
     // Setup
     auto fa = aTriangle.getFa();
@@ -145,9 +145,9 @@ void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
     const double ymin = aTriangle.ymin();
 
     math::Vec<3, double> previousNumerators{
-        fa({xmin, ymin}),
-        fb({xmin, ymin}),
-        fc({xmin, ymin}) 
+        fa({xmin, ymin, 0., 1.}),
+        fb({xmin, ymin, 0., 1.}),
+        fc({xmin, ymin, 0., 1.}) 
     };
 
     const math::Vec<3, double> denominators{
@@ -212,6 +212,12 @@ void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
 template <class T_raster>
 void rasterizeBis(const Triangle & aTriangle, T_raster & aRaster)
 {
+    ad::math::Barycentric<double> barycentric{ 
+        {aTriangle.a.pos.x(), aTriangle.a.pos.y()},
+        {aTriangle.b.pos.x(), aTriangle.b.pos.y()},
+        {aTriangle.c.pos.x(), aTriangle.c.pos.y()}
+    };
+
     for (auto y = static_cast<int>(std::nearbyint(aTriangle.ymin()));
          y <= static_cast<int>(std::nearbyint(aTriangle.ymax()));
          ++y)

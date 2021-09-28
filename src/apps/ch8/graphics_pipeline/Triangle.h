@@ -11,23 +11,23 @@
 namespace ad {
 namespace focg {
 
-using Pos = math::Position<2>;
+using HPos = math::Position<4>;
 using Rectangle = math::Rectangle<double>;
 
 
 struct Vertex
 {
-    /*implicit*/ operator Pos & () 
+    /*implicit*/ operator HPos & () 
     {
         return pos;
     }
 
-    /*implicit*/ operator Pos () const
+    /*implicit*/ operator HPos () const
     {
         return pos;
     }
 
-    Pos pos;
+    HPos pos;
     math::sdr::Rgb color;
 };
 
