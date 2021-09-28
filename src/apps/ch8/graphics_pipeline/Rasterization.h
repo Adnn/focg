@@ -118,11 +118,10 @@ void rasterize(const Triangle & aTriangle, T_raster & aRaster)
                     && beta  > 0 || fbeta  * fb(offscreenPoint) > 0
                     && gamma > 0 || fgamma * fc(offscreenPoint) > 0)
                 {
-                    aRaster.at(x, y) =
+                    aRaster.at(x, y) = to_sdr(
                           alpha * aTriangle.a.color
                         + beta  * aTriangle.b.color
-                        + gamma * aTriangle.c.color
-                        ;
+                        + gamma * aTriangle.c.color);
                 }
             }
         }
@@ -192,11 +191,10 @@ void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
                     && beta  > 0 || denominators.y() * fb(offscreenPoint) > 0
                     && gamma > 0 || denominators.z() * fc(offscreenPoint) > 0)
                 {
-                    aRaster.at(x, y) =
+                    aRaster.at(x, y) = to_sdr(
                           alpha * aTriangle.a.color
                         + beta  * aTriangle.b.color
-                        + gamma * aTriangle.c.color
-                        ;
+                        + gamma * aTriangle.c.color);
                 }
             }
             numerators += xIncrements;
@@ -231,11 +229,10 @@ void rasterizeBis(const Triangle & aTriangle, T_raster & aRaster)
             auto [alpha, beta, gamma] = barycentric.getCoordinates({(double)x, (double)y});
             if (alpha >= 0. && beta >= 0. && gamma >= 0.)
             {
-                aRaster.at(x, y) =
+                aRaster.at(x, y) = to_sdr(
                       alpha * aTriangle.a.color
                     + beta  * aTriangle.b.color
-                    + gamma * aTriangle.c.color
-                    ;
+                    + gamma * aTriangle.c.color);
             }
         }
     }

@@ -59,9 +59,9 @@ void rgbTriangle(filesystem::path aImagePath, math::Size<2, int> aResolution)
     focg::Scene scene;
     scene.triangles = {
         {/*triangle*/
-            { {300., 300., 0., 1.}, math::sdr::gRed },
-            { {500., 300., 0., 1.}, math::sdr::gGreen },
-            { {400., 500., 0., 1.}, math::sdr::gBlue },
+            { {300., 300., 0., 1.}, math::hdr::gRed },
+            { {500., 300., 0., 1.}, math::hdr::gGreen },
+            { {400., 500., 0., 1.}, math::hdr::gBlue },
         }
     };
 
@@ -94,9 +94,9 @@ focg::Scene triangleClipping()
     focg::Scene scene;
     scene.triangles = {
         {/*triangle*/
-            { {-100., 300., 0., 1.}, math::sdr::gRed },
-            { { 500., 300., 0., 1.}, math::sdr::gGreen },
-            { { 400., 500., 0., 1.}, math::sdr::gBlue },
+            { {-100., 300., 0., 1.}, math::hdr::gRed },
+            { { 500., 300., 0., 1.}, math::hdr::gGreen },
+            { { 400., 500., 0., 1.}, math::hdr::gBlue },
         }
     };
     return scene;

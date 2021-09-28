@@ -28,7 +28,7 @@ struct Vertex
     }
 
     HPos pos;
-    math::sdr::Rgb color;
+    math::hdr::Rgb color;
 };
 
 
