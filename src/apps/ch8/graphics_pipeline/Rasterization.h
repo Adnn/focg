@@ -37,8 +37,8 @@ void rasterizeLine(
     // The four cases depending on the slope
     if (m <= -1)
     {
-        int x = std::round(a.x());
-        for (int y = std::round(a.y()); y >= std::round(b.y()); --y)
+        int x = std::nearbyint(a.x());
+        for (int y = std::nearbyint(a.y()); y >= std::nearbyint(b.y()); --y)
         {
             aRaster.at(x, y) = aColor;
             if (f({x+0.5, y+1.}) < 0)
@@ -49,8 +49,8 @@ void rasterizeLine(
     }
     else if (m <= 0)
     {
-        int y = std::round(a.y());
-        for (int x = std::round(a.x()); x <= std::round(b.x()); ++x)
+        int y = std::nearbyint(a.y());
+        for (int x = std::nearbyint(a.x()); x <= std::nearbyint(b.x()); ++x)
         {
             aRaster.at(x, y) = aColor;
             if (f({x+1., y+0.5}) > 0)
@@ -61,8 +61,8 @@ void rasterizeLine(
     }
     else if (m <= 1)
     {
-        int y = std::round(a.y());
-        for (int x = std::round(a.x()); x <= std::round(b.x()); ++x)
+        int y = std::nearbyint(a.y());
+        for (int x = std::nearbyint(a.x()); x <= std::nearbyint(b.x()); ++x)
         {
             aRaster.at(x, y) = aColor;
             if (f({x+1., y+0.5}) < 0)
@@ -73,8 +73,8 @@ void rasterizeLine(
     }
     else
     {
-        int x = std::round(a.x());
-        for (int y = std::round(a.y()); y <= std::round(b.y()); ++y)
+        int x = std::nearbyint(a.x());
+        for (int y = std::nearbyint(a.y()); y <= std::nearbyint(b.y()); ++y)
         {
             aRaster.at(x, y) = aColor;
             if (f({x+0.5, y+1.}) > 0)
@@ -100,12 +100,12 @@ void rasterize(const Triangle & aTriangle, T_raster & aRaster)
     const double fbeta  = fb(aTriangle.b);
     const double fgamma = fc(aTriangle.c);
 
-    for (auto y = static_cast<int>(std::round(aTriangle.ymin()));
-         y <= static_cast<int>(std::round(aTriangle.ymax()));
+    for (auto y = static_cast<int>(std::nearbyint(aTriangle.ymin()));
+         y <= static_cast<int>(std::nearbyint(aTriangle.ymax()));
          ++y)
     {
-        for (auto x = static_cast<int>(std::round(aTriangle.xmin()));
-             x <= static_cast<int>(std::round(aTriangle.xmax()));
+        for (auto x = static_cast<int>(std::nearbyint(aTriangle.xmin()));
+             x <= static_cast<int>(std::nearbyint(aTriangle.xmax()));
              ++x)
         {
             double alpha = fa({(double)x, (double)y}) / falpha;
@@ -171,12 +171,12 @@ void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
     math::Vec<3, double> numerators = previousNumerators;
 
     // Increments
-    for (auto y = static_cast<int>(std::round(ymin));
-         y <= static_cast<int>(std::round(aTriangle.ymax()));
+    for (auto y = static_cast<int>(std::nearbyint(ymin));
+         y <= static_cast<int>(std::nearbyint(aTriangle.ymax()));
          ++y)
     {
-        for (auto x = static_cast<int>(std::round(xmin));
-             x <= static_cast<int>(std::round(aTriangle.xmax()));
+        for (auto x = static_cast<int>(std::nearbyint(xmin));
+             x <= static_cast<int>(std::nearbyint(aTriangle.xmax()));
              ++x)
         {
             math::Vec<3, double> barycentric = numerators.cwDiv(denominators);
@@ -212,12 +212,12 @@ void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
 template <class T_raster>
 void rasterizeBis(const Triangle & aTriangle, T_raster & aRaster)
 {
-    for (auto y = static_cast<int>(std::round(aTriangle.ymin()));
-         y <= static_cast<int>(std::round(aTriangle.ymax()));
+    for (auto y = static_cast<int>(std::nearbyint(aTriangle.ymin()));
+         y <= static_cast<int>(std::nearbyint(aTriangle.ymax()));
          ++y)
     {
-        for (auto x = static_cast<int>(std::round(aTriangle.xmin()));
-             x <= static_cast<int>(std::round(aTriangle.xmax()));
+        for (auto x = static_cast<int>(std::nearbyint(aTriangle.xmin()));
+             x <= static_cast<int>(std::nearbyint(aTriangle.xmax()));
              ++x)
         {
             // Shortcut version leads to artifacts on the "alpha edge".
@@ -266,10 +266,10 @@ void drawLine(
     // The four cases depending on the slope
     if (m <= -1)
     {
-        int x = std::round(a.x());
+        int x = std::nearbyint(a.x());
         double d = f(a + math::Vec<2>{0.5, 1.});
 
-        for (int y = std::round(a.y()); y >= std::round(b.y()); --y)
+        for (int y = std::nearbyint(a.y()); y >= std::nearbyint(b.y()); --y)
         {
             aRaster.at(x, y) = aColor;
             if (d < 0)
@@ -285,10 +285,10 @@ void drawLine(
     }
     else if (m <= 1)
     {
-        int y = std::round(a.y());
+        int y = std::nearbyint(a.y());
         double d = f(a + math::Vec<2>{1., 0.5});
 
-        for (int x = std::round(a.x()); x <= std::round(b.x()); ++x)
+        for (int x = std::nearbyint(a.x()); x <= std::nearbyint(b.x()); ++x)
         {
             aRaster.at(x, y) = aColor;
             if (d < 0)
