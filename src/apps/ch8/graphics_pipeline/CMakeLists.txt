@@ -1,9 +1,12 @@
 set(TARGET_NAME ch8-graphics_pipeline)
 
 set(${TARGET_NAME}_HEADERS
-    MidpointAlgorithm.h
+    Clipping.h
+    GraphicsPipeline.h
     Line.h
+    Rasterization.h
     Scene.h
+    Triangle.h
 )
 
 set(${TARGET_NAME}_SOURCES

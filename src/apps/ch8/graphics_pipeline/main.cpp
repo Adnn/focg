@@ -1,3 +1,4 @@
+#include "GraphicsPipeline.h"
 #include "Scene.h"
 
 #include <math/Color.h>
@@ -11,9 +12,8 @@
 using namespace ad;
 
 
-void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
+void lineTest(filesystem::path aImagePath, math::Size<2, int> aResolution)
 {
-    // Defines a cube from [100, 100, 100] to [200, 200, 200]
     focg::Scene scene{
         { // vector
             // 1st quadrant
@@ -33,10 +33,10 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
 
             // 5th
             { {400., 400.}, {100., 100.} },
-            { {400., 400.}, {100., 110.} },
+            //{ {400., 400.}, {100., 110.} },
 
-            // 6th
-            { {400., 400.}, {100., 90.} },
+            //// 6th
+            //{ {400., 400.}, {100., 90.} },
 
             // 7th
             { {400., 400.}, {400., 100.} },
@@ -49,7 +49,46 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
             
         }};
 
-    scene.render(aResolution).saveFile(aImagePath / "ch8_lines_test.ppm");
+    scene.render(aResolution).saveFile(aImagePath / "ch8_lines_test.ppm",
+                                       ImageOrientation::InvertVerticalAxis);
+}
+
+
+void rgbTriangle(filesystem::path aImagePath, math::Size<2, int> aResolution)
+{
+    focg::Scene scene;
+    scene.triangles = {
+        {/*triangle*/
+            { {300., 300.}, math::sdr::gRed },
+            { {500., 300.}, math::sdr::gGreen },
+            { {400., 500.}, math::sdr::gBlue },
+        }
+    };
+
+    scene.render(aResolution).saveFile(aImagePath / "ch8_triangles_test.ppm",
+                                       ImageOrientation::InvertVerticalAxis);
+}
+
+
+void clipping(filesystem::path aImagePath, math::Size<2, int> aResolution)
+{
+    focg::Scene scene{
+        { // vector
+            // clip left
+            { {-400., 400.}, {600., 500.} },
+            { {400., 400.}, {11700., 700.} },
+        }};
+
+    traversePipeline(scene, aResolution).saveFile(aImagePath / "ch8_clipping.ppm",
+                                                  ImageOrientation::InvertVerticalAxis);
+}
+
+
+void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
+{
+    lineTest(aImagePath, aResolution);
+    rgbTriangle(aImagePath, aResolution);
+    clipping(aImagePath, aResolution);
 }
 
 int main(int argc, char ** argv)

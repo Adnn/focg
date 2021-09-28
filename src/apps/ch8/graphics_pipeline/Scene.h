@@ -1,8 +1,10 @@
 #pragma once
 
 
+#include "Clipping.h"
 #include "Line.h"
-#include "MidpointAlgorithm.h"
+#include "Triangle.h"
+#include "Rasterization.h"
 
 #include <arte/Image.h>
 
@@ -18,6 +20,7 @@ struct Scene
     Image<> render(math::Size<2, int> aResolution);
 
     std::vector<Line> lines;
+    std::vector<Triangle> triangles;
 };
 
 inline Image<> Scene::render(math::Size<2, int> aResolution)
@@ -27,6 +30,11 @@ inline Image<> Scene::render(math::Size<2, int> aResolution)
     for (const auto & line : lines)
     {
         rasterizeLine(line, image);
+    }
+
+    for (const auto & triangle : triangles)
+    {
+        rasterizeIncremental(triangle, image);
     }
 
     return image;

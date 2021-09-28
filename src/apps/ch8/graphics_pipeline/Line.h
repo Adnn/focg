@@ -22,9 +22,22 @@ struct Line
         pointB{std::move(b)}
     {}
 
-    std::function<Pos::value_type(Pos)> getImplicitEquation() const
+    double getEquationFactorX() const
     {
-        return [=](Pos point)
+        return pointA.y() - pointB.y();
+    }
+
+    double getEquationFactorY() const
+    {
+        return pointB.x() - pointA.x();
+    }
+
+    auto getImplicitEquation() const
+    {
+        // simple copy by value would capture `this`
+        // and I would suspect this means it will try to access the values
+        // each time (hoping a copy allows the compiler to precompute some operations).
+        return [pointA=this->pointA, pointB=this->pointB](Pos point)
         {
             return (pointA.y() - pointB.y()) * point.x() 
                 + (pointB.x() - pointA.x()) * point.y()
