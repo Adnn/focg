@@ -5,12 +5,28 @@
 #include "Rasterization.h"
 #include "Scene.h"
 
+#include <bitset>
+
 
 namespace ad {
 namespace focg {
 
 
-inline Image<> traversePipeline(const Scene & aScene, math::Size<2, int> aResolution)
+struct GraphicsPipeline
+{
+private:
+    using RenderFlag = std::bitset<2>;
+
+public:
+    Image<> traverse(const Scene & aScene, math::Size<2, int> aResolution) const;
+
+    static constexpr RenderFlag Wireframe = 0b01;
+    static constexpr RenderFlag Fill = 0b10;
+    RenderFlag renderMode{Fill};
+};
+
+
+inline Image<> GraphicsPipeline::traverse(const Scene & aScene, math::Size<2, int> aResolution) const
 {
     ad::Image<> image{aResolution, math::sdr::gBlack};
     ViewVolume volume{math::Box<double>{
@@ -39,7 +55,18 @@ inline Image<> traversePipeline(const Scene & aScene, math::Size<2, int> aResolu
     {
         for (const auto & triangle : clip(triangle, volume))
         {
-            rasterizeIncremental(triangle, image);
+            if ((renderMode & Fill).any())
+            {
+                rasterizeIncremental(triangle, image);
+                //rasterize(triangle, image);
+                //rasterizeBis(triangle, image);
+            }
+            if ((renderMode & Wireframe).any())
+            {
+                rasterizeLine(triangle.getLineC(), image);
+                rasterizeLine(triangle.getLineB(), image);
+                rasterizeLine(triangle.getLineA(), image);
+            }
         }
     }
 

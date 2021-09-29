@@ -33,10 +33,10 @@ void lineTest(filesystem::path aImagePath, math::Size<2, int> aResolution)
 
             // 5th
             { {400., 400.}, {100., 100.} },
-            //{ {400., 400.}, {100., 110.} },
+            { {400., 400.}, {100., 110.} },
 
             //// 6th
-            //{ {400., 400.}, {100., 90.} },
+            { {400., 400.}, {100., 90.} },
 
             // 7th
             { {400., 400.}, {400., 100.} },
@@ -93,30 +93,61 @@ focg::Scene triangleClipping()
 {
     focg::Scene scene;
     scene.triangles = {
+        //// all windows borders
+        //{/*triangle*/
+        //    { {-100., -200., 0., 1.}, math::hdr::gBlack },
+        //    { { 900.,  200., 0., 1.}, math::hdr::gYellow },
+        //    { { 400., 1000., 0., 1.}, math::hdr::gCyan },
+        //},
+        // left edge
         {/*triangle*/
             { {-100., 300., 0., 1.}, math::hdr::gRed },
             { { 500., 300., 0., 1.}, math::hdr::gGreen },
             { { 400., 500., 0., 1.}, math::hdr::gBlue },
-        }
+        },
+        // top edge
+        {/*triangle*/
+            { {100.,  600., 0., 1.}, math::hdr::gRed },
+            { {500.,  500., 0., 1.}, math::hdr::gGreen },
+            { {400., 1500., 0., 1.}, math::hdr::gBlue },
+        },
+        // right edge
+        {/*triangle*/
+            { { 550., 300., 0., 1.}, math::hdr::gRed },
+            { { 900., 300., 0., 1.}, math::hdr::gGreen },
+            { { 450., 500., 0., 1.}, math::hdr::gBlue },
+        },
+        // bottom edge
+        {/*triangle*/
+            { {400.,  100., 0., 1.}, math::hdr::gRed },
+            { {600., -100., 0., 1.}, math::hdr::gGreen },
+            { {700.,  100., 0., 1.}, math::hdr::gBlue },
+        },
     };
     return scene;
 }
 
 
-void renderImage(const focg::Scene & aScene, filesystem::path aImageFilePath, math::Size<2, int> aResolution)
+void renderImage(const focg::Scene & aScene,
+                 const focg::GraphicsPipeline & aPipeline,
+                 filesystem::path aImageFilePath,
+                 math::Size<2, int> aResolution)
 {
-    traversePipeline(aScene, aResolution)
+    aPipeline.traverse(aScene, aResolution)
         .saveFile(aImageFilePath, ImageOrientation::InvertVerticalAxis);
 }
 
 
-void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
+void renderAll(filesystem::path aImagePath, math::Size<2, int> aResolution)
 {
+    focg::GraphicsPipeline pipeline;
+    pipeline.renderMode = focg::GraphicsPipeline::Wireframe | focg::GraphicsPipeline::Fill;
+
     lineTest(aImagePath, aResolution);
     rgbTriangle(aImagePath, aResolution);
 
-    renderImage(lineClipping(),     aImagePath / "ch8_clipping_lines.ppm",     aResolution);
-    renderImage(triangleClipping(), aImagePath / "ch8_clipping_triangles.ppm", aResolution);
+    renderImage(lineClipping(),     pipeline, aImagePath / "ch8_clipping_lines.ppm",     aResolution);
+    renderImage(triangleClipping(), pipeline, aImagePath / "ch8_clipping_triangles.ppm", aResolution);
 }
 
 int main(int argc, char ** argv)
@@ -129,7 +160,7 @@ int main(int argc, char ** argv)
 
     try 
     {   
-        render(argv[1], {800, 800});
+        renderAll(argv[1], {800, 800});
         return EXIT_SUCCESS;
     }
     catch (std::exception & e)
