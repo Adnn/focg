@@ -202,13 +202,13 @@ inline void clip_impl(const Triangle & aTriangle,
             double t_bc = aVolume.solveForT(planeId, b, c);
 
             // Define intersection position, and interpolate colors
-            Vertex vertexAC{a.pos + t_ac * (c.pos - a.pos), math::lerp(aTriangle.a.color, aTriangle.c.color, t_ac)};
-            Vertex vertexBC{b.pos + t_bc * (c.pos - b.pos), math::lerp(aTriangle.b.color, aTriangle.c.color, t_ac)};
+            Vertex vertexAC{a.pos + t_ac * (c.pos - a.pos), math::lerp(a.color, c.color, t_ac)};
+            Vertex vertexBC{b.pos + t_bc * (c.pos - b.pos), math::lerp(b.color, c.color, t_bc)};
 
             if (fc < 0) // c is on the in side of the plane, spawn a single triangle
             {
                 clip_impl({vertexAC, vertexBC, c}, aInserter, aVolume, aStartingPlane + 1);
-                //return;
+                return;
             }
             else // c is outside, spawn two triangles
             {
