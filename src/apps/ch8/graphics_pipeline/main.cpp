@@ -93,12 +93,20 @@ focg::Scene triangleClipping()
 {
     focg::Scene scene;
     scene.triangles = {
-        //// all windows borders
-        //{/*triangle*/
-        //    { {-100., -200., 0., 1.}, math::hdr::gBlack },
-        //    { { 900.,  200., 0., 1.}, math::hdr::gYellow },
-        //    { { 400., 1000., 0., 1.}, math::hdr::gCyan },
-        //},
+        // all windows borders
+        {/*triangle*/
+            { {-100., -200., 0., 1.}, math::hdr::gBlack },
+            { { 900.,  200., 0., 1.}, math::hdr::gYellow },
+            { { 400., 1000., 0., 1.}, math::hdr::gCyan },
+        },
+
+        // Left + top
+        {
+            { {-100.,  400., 0., 1.}, math::hdr::gBlack },
+            { {   0., 1000., 0., 1.}, math::hdr::gYellow },
+            { { 300.,  500., 0., 1.}, math::hdr::gCyan },
+        },
+
         // left edge
         {/*triangle*/
             { {-100., 300., 0., 1.}, math::hdr::gRed },
@@ -123,6 +131,11 @@ focg::Scene triangleClipping()
             { {600., -100., 0., 1.}, math::hdr::gGreen },
             { {700.,  100., 0., 1.}, math::hdr::gBlue },
         },
+        {/*triangle*/
+            { {200.,  100., 0., 1.}, math::hdr::gRed },
+            { {100., -100., 0., 1.}, math::hdr::gGreen },
+            { {400., -100., 0., 1.}, math::hdr::gBlue },
+        },
     };
     return scene;
 }
@@ -142,6 +155,7 @@ void renderAll(filesystem::path aImagePath, math::Size<2, int> aResolution)
 {
     focg::GraphicsPipeline pipeline;
     pipeline.renderMode = focg::GraphicsPipeline::Wireframe | focg::GraphicsPipeline::Fill;
+    //pipeline.renderMode = focg::GraphicsPipeline::Wireframe;
 
     lineTest(aImagePath, aResolution);
     rgbTriangle(aImagePath, aResolution);

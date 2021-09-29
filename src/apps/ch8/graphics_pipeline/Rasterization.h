@@ -126,6 +126,13 @@ void rasterize(const Triangle & aTriangle, T_raster & aRaster)
     const double fbeta  = fb(aTriangle.b);
     const double fgamma = fc(aTriangle.c);
 
+    // Test for degenerate triangle (zero area), which should not be rasterized.
+    if (falpha == 0. || fbeta == 0. || fgamma == 0.)
+    {
+        return; 
+    }
+
+
     for (auto y = static_cast<int>(std::nearbyint(aTriangle.ymin()));
          y <= static_cast<int>(std::nearbyint(aTriangle.ymax()));
          ++y)
@@ -183,6 +190,12 @@ void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
         fc(aTriangle.c)
     };
 
+    // Test for degenerate triangle (zero area), which should not be rasterized.
+    if (denominators.x() == 0. || denominators.y() == 0. || denominators.z() == 0.)
+    {
+        return; 
+    }
+
     const math::Vec<3> xIncrements{
         aTriangle.getLineA().getEquationFactorX(),
         aTriangle.getLineB().getEquationFactorX(),
@@ -235,6 +248,7 @@ void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
 
 // Use the math::Barycentric facility, which prevents to implement an incremental version
 // No tangent edge assignment implemented.
+// No test for degenerate triangles implemented
 template <class T_raster>
 void rasterizeBis(const Triangle & aTriangle, T_raster & aRaster)
 {
