@@ -14,8 +14,23 @@
 namespace ad {
 namespace focg {
 
+
+// Notes:
+// Midpoint algorithm, FoCG 3rd 8.1.1 p165
+//
+// There is an important subtelty with the last point on the line:
+// The endpoint coordinates are floating point values, so it can lie anywhere in the pixel.
+// If it were to happen "early" (i.e. barely entering the last pixel),
+// the midpoint test would virtually extend the line to the center of the pixel on the main axis,
+// (main axis being the axis that is [in|de]cremented at each test, the secondary axis has a condition.)
+// which could actually extend the line to a neighboring pixel on the secondary axis due to slope.
+// Even though this respects the correct slope of the line, this has two issues:
+// * it generates a fragment in a pixel that the line never actually enters.
+// * if the endpoint is on the raster edge (e.g. after clipping), it could lead to an out-of-bounds access.
+// For theses reasons, the endpoint is handled separately, after the main loop.
+// This is actually symmetrical to what happens for the first pixel (which is shaded without considering slope).
+
 // TODO color interpolation along the line
-/// \note Midpoint algorithgm, FoCG 3rd p 165
 template <class T_raster>
 void rasterizeLine(
     Line aLine,
@@ -32,13 +47,12 @@ void rasterizeLine(
     // Make sure to get the equation after potentially swapping points.
     auto f = aLine.getImplicitEquation();
 
-
     double m = (b.y() - a.y()) / (b.x() - a.x());
     // The four cases depending on the slope
     if (m <= -1)
     {
         int x = std::nearbyint(a.x());
-        for (int y = std::nearbyint(a.y()); y >= std::nearbyint(b.y()); --y)
+        for (int y = std::nearbyint(a.y()); y > std::nearbyint(b.y()); --y)
         {
             aRaster.at(x, y) = aColor;
             if (f({x+0.5, y-1., 0., 1.}) < 0)
@@ -50,7 +64,7 @@ void rasterizeLine(
     else if (m <= 0)
     {
         int y = std::nearbyint(a.y());
-        for (int x = std::nearbyint(a.x()); x <= std::nearbyint(b.x()); ++x)
+        for (int x = std::nearbyint(a.x()); x < std::nearbyint(b.x()); ++x)
         {
             aRaster.at(x, y) = aColor;
             if (f({x+1., y-0.5, 0., 1.}) > 0)
@@ -62,7 +76,7 @@ void rasterizeLine(
     else if (m <= 1)
     {
         int y = std::nearbyint(a.y());
-        for (int x = std::nearbyint(a.x()); x <= std::nearbyint(b.x()); ++x)
+        for (int x = std::nearbyint(a.x()); x < std::nearbyint(b.x()); ++x)
         {
             aRaster.at(x, y) = aColor;
             if (f({x+1., y+0.5, 0., 1.}) < 0)
@@ -74,7 +88,7 @@ void rasterizeLine(
     else
     {
         int x = std::nearbyint(a.x());
-        for (int y = std::nearbyint(a.y()); y <= std::nearbyint(b.y()); ++y)
+        for (int y = std::nearbyint(a.y()); y < std::nearbyint(b.y()); ++y)
         {
             aRaster.at(x, y) = aColor;
             if (f({x+0.5, y+1., 0., 1.}) > 0)
@@ -83,8 +97,20 @@ void rasterizeLine(
             }
         }
     }
+    // Separate handling of last point of the line (see notes above).
+    aRaster.at(std::nearbyint(b.x()), std::nearbyint(b.y())) = aColor;
 }
 
+
+//
+// Triangles
+//
+
+// Notes:
+// Implementations following FoCG 3rd 8.1.2 p166.
+//
+// The rasterization only generate a fragment if the pixel center is inside the triangle 
+// (or exactly on its edge).
 
 template <class T_raster>
 void rasterize(const Triangle & aTriangle, T_raster & aRaster)
@@ -140,6 +166,8 @@ void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
     auto fb = aTriangle.getFb();
     auto fc = aTriangle.getFc();
 
+    // It is important that the initial numerators are generated
+    // for pixel center (so rounding has to happen now).
     const double xMinRound = std::nearbyint(aTriangle.xmin());
     const double yMinRound = std::nearbyint(aTriangle.ymin());
 
