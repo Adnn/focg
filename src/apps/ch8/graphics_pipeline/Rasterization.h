@@ -165,7 +165,7 @@ void rasterize(const Triangle & aTriangle, T_raster & aRaster)
 
 
 template <class T_raster>
-void defaultFragmentShader(T_raster & aRaster, math::Position<2, int> aScreenPosition, double aDepth, math::sdr::Rgb aColor)
+void defaultFragmentCallback(T_raster & aRaster, math::Position<2, int> aScreenPosition, double aFragmentDepth, math::sdr::Rgb aColor)
 {
     if constexpr (std::is_same_v<T_raster, arte::Image<>>)
     {
@@ -181,14 +181,16 @@ void defaultFragmentShader(T_raster & aRaster, math::Position<2, int> aScreenPos
 template <class T_raster>
 void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
 {
-    rasterizeIncremental(aTriangle, aRaster, &defaultFragmentShader<T_raster>);
+    rasterizeIncremental(aTriangle, aRaster, &defaultFragmentCallback<T_raster>);
 }
 
 
-template <class T_raster, class T_fragmentShader>
+/// \note aRaster is passed in because of legacy API of NaivePipeline,
+/// otherwise it makes more sense that the fragment callback knows the target.
+template <class T_raster, class F_postRasterization>
 void rasterizeIncremental(const Triangle & aTriangle, 
                           T_raster & aRaster,
-                          const T_fragmentShader & aShader)
+                          const F_postRasterization & aFragmentCallback)
 {
     // Use to assign exactly tangent pixels on adjacent triangles (p 168)
     const HPos offscreenPoint{-1., -1., 0., 1.};
@@ -265,7 +267,7 @@ void rasterizeIncremental(const Triangle & aTriangle,
                                + beta  * aTriangle.b.color
                                + gamma * aTriangle.c.color;
 
-                    aShader(aRaster, {x, y}, z, to_sdr(color));
+                    aFragmentCallback(aRaster, {x, y}, z, to_sdr(color));
                 }
             }
             numerators += xIncrements;

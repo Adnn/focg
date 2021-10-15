@@ -189,14 +189,9 @@ void renderImage(const focg::Scene & aScene,
                 ;
             return aVertex.pos * transform;
         },
-        [](Buffer & aRaster, math::Position<2, int> aScreenPosition, double aDepth, math::sdr::Rgb aColor)
+        [](math::sdr::Rgb aColor)
         {
-            // Near plane > Far plane, so the test is for superiority.
-            if (aDepth > aRaster.depthAt(aScreenPosition))
-            {
-                aRaster.color.at(aScreenPosition.x(), aScreenPosition.y()) = aColor;
-                aRaster.depthAt(aScreenPosition) = aDepth;
-            }
+            return aColor;
         }
     };
 
@@ -218,6 +213,7 @@ void renderAll(filesystem::path aImagePath, math::Size<2, int> aResolution)
     renderImage(triangleClipping(), pipeline, aImagePath / "ch8_clipping_triangles.ppm", aResolution);
 
     focg::GraphicsPipeline pipelineZBuffered;
+    //pipelineZBuffered.renderMode = focg::NaivePipeline::Wireframe | focg::NaivePipeline::Fill;
     renderImage(depthBuffer(), pipelineZBuffered, aImagePath / "ch8_depth_buffer.ppm", aResolution);
 }
 

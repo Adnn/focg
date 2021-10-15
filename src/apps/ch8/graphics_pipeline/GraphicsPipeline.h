@@ -41,10 +41,8 @@ ImageBuffer<T_pixel, T_depthValue>::ImageBuffer(math::Size<2, int> aResolution, 
 template <class T_vertex, class T_targetBuffer>
 struct Program
 {
-    using VertexShader =
-        HPos(*)(const T_vertex & aVertex);
-    using FragmentShader =
-        void(*)(T_targetBuffer &, math::Position<2, int> /*aScreenPosition*/, double /*aDepth*/, math::sdr::Rgb);
+    using VertexShader = HPos(*)(const T_vertex & aVertex);
+    using FragmentShader = math::sdr::Rgb(*)(math::sdr::Rgb);
 
     Program(VertexShader aVertex, FragmentShader aFragment) :
         vertex{std::move(aVertex)},
@@ -106,16 +104,34 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene & aScene,
 
     for (auto triangle : aScene.triangles)
     {
-        // Apply Vertex shader
+        // Vertex shader
         triangle.a.pos = aProgram.vertex(triangle.a);
         triangle.b.pos = aProgram.vertex(triangle.b);
         triangle.c.pos = aProgram.vertex(triangle.c);
 
+        // Clipping
         for (const auto & triangle : clip(triangle, volume))
         {
+            // Rasterization of clipped primitives
             if ((renderMode & Fill).any())
             {
-                rasterizeIncremental(triangle, aTarget, aProgram.fragment);
+                rasterizeIncremental(
+                    triangle,
+                    aTarget,
+                    [&aProgram](T_targetBuffer & aTarget,
+                        math::Position<2, int> aScreenPosition, 
+                        double aFragmentDepth, 
+                        math::sdr::Rgb aColor)
+                    {
+                        // Depth test (Z buffer)
+                        // Note: Near plane > Far plane, so the test is for superiority.
+                        if (aFragmentDepth > aTarget.depthAt(aScreenPosition))
+                        {
+                            // Fragment Shader
+                            aTarget.color.at(aScreenPosition) = aProgram.fragment(aColor);
+                            aTarget.depthAt(aScreenPosition) = aFragmentDepth;
+                        }
+                    });
             }
             if ((renderMode & Wireframe).any())
             {
