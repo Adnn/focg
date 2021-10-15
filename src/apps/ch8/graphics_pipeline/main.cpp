@@ -50,7 +50,7 @@ void lineTest(filesystem::path aImagePath, math::Size<2, int> aResolution)
         }};
 
     scene.render(aResolution).saveFile(aImagePath / "ch8_lines_test.ppm",
-                                       ImageOrientation::InvertVerticalAxis);
+                                       arte::ImageOrientation::InvertVerticalAxis);
 }
 
 
@@ -66,7 +66,7 @@ void rgbTriangle(filesystem::path aImagePath, math::Size<2, int> aResolution)
     };
 
     scene.render(aResolution).saveFile(aImagePath / "ch8_triangles_test.ppm",
-                                       ImageOrientation::InvertVerticalAxis);
+                                       arte::ImageOrientation::InvertVerticalAxis);
 }
 
 
@@ -147,7 +147,7 @@ void renderImage(const focg::Scene & aScene,
                  math::Size<2, int> aResolution)
 {
     aPipeline.traverse(aScene, aResolution)
-        .saveFile(aImageFilePath, ImageOrientation::InvertVerticalAxis);
+        .saveFile(aImageFilePath, arte::ImageOrientation::InvertVerticalAxis);
 }
 
 

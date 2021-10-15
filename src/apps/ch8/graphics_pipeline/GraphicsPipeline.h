@@ -18,7 +18,7 @@ private:
     using RenderFlag = std::bitset<2>;
 
 public:
-    Image<> traverse(const Scene & aScene, math::Size<2, int> aResolution) const;
+    ad::arte::Image<> traverse(const Scene & aScene, math::Size<2, int> aResolution) const;
 
     static constexpr RenderFlag Wireframe = 0b01;
     static constexpr RenderFlag Fill = 0b10;
@@ -26,9 +26,9 @@ public:
 };
 
 
-inline Image<> GraphicsPipeline::traverse(const Scene & aScene, math::Size<2, int> aResolution) const
+inline ad::arte::Image<> GraphicsPipeline::traverse(const Scene & aScene, math::Size<2, int> aResolution) const
 {
-    ad::Image<> image{aResolution, math::sdr::gBlack};
+    ad::arte::Image<> image{aResolution, math::sdr::gBlack};
     ViewVolume volume{math::Box<double>{
         // Important 0.5 offset, because the integer coordinate are at pixel centers!
         // there is nonetheless an issue, since -0.5 rounds to -1 and 0.5 rounds to 1

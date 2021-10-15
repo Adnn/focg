@@ -12,7 +12,7 @@ using namespace ad;
 
 void exercise_1(filesystem::path aImagePath)
 {
-    auto colorImage = Image<>::LoadFile(aImagePath);
+    auto colorImage = arte::Image<>::LoadFile(aImagePath);
     filesystem::path folder = aImagePath.parent_path();
     filesystem::path stem = aImagePath.stem();
 
@@ -58,7 +58,7 @@ void exercise_1(filesystem::path aImagePath)
     }};
 
     // 1. Filtering
-    Image<math::sdr::Grayscale> filtered = pattern.filter(colorImage);
+    arte::Image<math::sdr::Grayscale> filtered = pattern.filter(colorImage);
     filtered.saveFile(folder / (stem.string() + "_bayerfiltered.pgm") );
 
     // 2. Color-coded filtered image

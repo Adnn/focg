@@ -17,15 +17,15 @@ namespace focg {
 
 struct Scene
 {
-    Image<> render(math::Size<2, int> aResolution);
+    ad::arte::Image<> render(math::Size<2, int> aResolution);
 
     std::vector<Line> lines;
     std::vector<Triangle> triangles;
 };
 
-inline Image<> Scene::render(math::Size<2, int> aResolution)
+inline ad::arte::Image<> Scene::render(math::Size<2, int> aResolution)
 {
-    ad::Image<> image{aResolution, math::sdr::gBlack};
+    ad::arte::Image<> image{aResolution, math::sdr::gBlack};
 
     for (const auto & line : lines)
     {
