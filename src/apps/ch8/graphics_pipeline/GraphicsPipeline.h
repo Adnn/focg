@@ -32,7 +32,9 @@ struct ImageBuffer
 template <class T_pixel, class T_depthValue>
 ImageBuffer<T_pixel, T_depthValue>::ImageBuffer(math::Size<2, int> aResolution, T_pixel aDefaultColor) :
     color{aResolution, aDefaultColor},
-    depth((std::size_t)aResolution.area(), std::numeric_limits<T_depthValue>::min())
+    // Near plane > Far plane, so the test is for superiority (hence min).
+    // Important: for floating point, ::min() is the lowest positive value...
+    depth((std::size_t)aResolution.area(), std::numeric_limits<T_depthValue>::lowest())
 {}
 
 
