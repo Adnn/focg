@@ -38,12 +38,24 @@ ImageBuffer<T_pixel, T_depthValue>::ImageBuffer(math::Size<2, int> aResolution, 
 {}
 
 
-template <class T_targetBuffer>
+template <class T_vertex, class T_targetBuffer>
 struct Program
 {
+    using VertexShader =
+        HPos(*)(const T_vertex & aVertex);
     using FragmentShader =
         void(*)(T_targetBuffer &, math::Position<2, int> /*aScreenPosition*/, double /*aDepth*/, math::sdr::Rgb);
 
+    Program(VertexShader aVertex, FragmentShader aFragment) :
+        vertex{std::move(aVertex)},
+        fragment{std::move(aFragment)}
+    {}
+
+    Program(FragmentShader aFragment) :
+        fragment{std::move(aFragment)}
+    {}
+
+    VertexShader vertex = [](const T_vertex & aVertex){return aVertex.pos;};
     FragmentShader fragment;
 };
 
@@ -68,6 +80,7 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene & aScene,
                                             T_targetBuffer & aTarget,
                                             const T_program & aProgram) const
 {
+    // TODO handle near plane / far plane instead of hardcoding 500 and 1000
     ViewVolume volume{math::Box<double>{
         // Important 0.5 offset, because the integer coordinate are at pixel centers!
         // there is nonetheless an issue, since -0.5 rounds to -1 and 0.5 rounds to 1
@@ -78,8 +91,8 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene & aScene,
         //{static_cast<ad::math::Size<2, double>>(aResolution), 500.},
 
         // A Q&D solution is to restrain the view volume by some arbitrary amount
-        {-0.45, -0.45, 500.},
-        {static_cast<math::Size<2, double>>(aTarget.getResolution()) - math::Size<2, double>{0.1, 0.1}, 1000.},
+        {-0.45, -0.45, 1000.},
+        {static_cast<math::Size<2, double>>(aTarget.getResolution()) - math::Size<2, double>{0.1, 0.1}, 2000.},
     }};
 
     // TODO adress proper line drawing via shader and depth buffer
@@ -91,8 +104,13 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene & aScene,
         }
     }
 
-    for (const auto & triangle : aScene.triangles)
+    for (auto triangle : aScene.triangles)
     {
+        // Apply Vertex shader
+        triangle.a.pos = aProgram.vertex(triangle.a);
+        triangle.b.pos = aProgram.vertex(triangle.b);
+        triangle.c.pos = aProgram.vertex(triangle.c);
+
         for (const auto & triangle : clip(triangle, volume))
         {
             if ((renderMode & Fill).any())

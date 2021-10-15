@@ -3,6 +3,7 @@
 #include "Scene.h"
 
 #include <math/Color.h>
+#include <math/Transformations.h>
 
 #include <arte/Image.h>
 #include <platform/Filesystem.h>
@@ -147,14 +148,14 @@ focg::Scene depthBuffer()
     focg::Scene scene;
     scene.triangles = {
         {
-            { {100.,  100.,  0., 1.}, math::hdr::gRed  },
-            { {600.,  400., 10., 1.}, math::hdr::gBlue  },
-            { {100.,  700.,  0., 1.}, math::hdr::gGreen  },
+            { {100.,  100., -10., 1.}, math::hdr::gRed  },
+            { {600.,  400.,  10., 1.}, math::hdr::gBlue  },
+            { {100.,  700., -10., 1.}, math::hdr::gGreen  },
         },
         {
-            { {700.,  100.,  0., 1.}, math::hdr::gCyan  },
-            { {200.,  400., 10., 1.}, math::hdr::gYellow  },
-            { {700.,  700.,  0., 1.}, math::hdr::gMagenta  },
+            { {700.,  100., -10., 1.}, math::hdr::gCyan  },
+            { {200.,  400.,  10., 1.}, math::hdr::gYellow  },
+            { {700.,  700., -10., 1.}, math::hdr::gMagenta  },
         }
     };
 
@@ -177,7 +178,17 @@ void renderImage(const focg::Scene & aScene,
 {
     using Buffer = focg::ImageBuffer<>;
     Buffer targetBuffer{aResolution};
-    focg::Program<Buffer> program{
+
+    focg::Program<focg::Vertex, Buffer> program{
+        [](const focg::Vertex & aVertex) -> focg::HPos
+        {
+            static math::AffineMatrix<4> transform = 
+                math::trans3d::translate<double>({-400., -400., 0.})
+                * math::trans3d::rotateZ(math::Degree<double>{45.})
+                * math::trans3d::translate<double>({ 400., 400., 0.})
+                ;
+            return aVertex.pos * transform;
+        },
         [](Buffer & aRaster, math::Position<2, int> aScreenPosition, double aDepth, math::sdr::Rgb aColor)
         {
             // Near plane > Far plane, so the test is for superiority.
@@ -188,6 +199,7 @@ void renderImage(const focg::Scene & aScene,
             }
         }
     };
+
     aPipeline.traverse(aScene, targetBuffer, program)
         .color.saveFile(aImageFilePath, arte::ImageOrientation::InvertVerticalAxis);
 }
