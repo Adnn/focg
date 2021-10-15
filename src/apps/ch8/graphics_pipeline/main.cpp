@@ -1,4 +1,4 @@
-#include "GraphicsPipeline.h"
+#include "NaivePipeline.h"
 #include "Scene.h"
 
 #include <math/Color.h>
@@ -141,8 +141,27 @@ focg::Scene triangleClipping()
 }
 
 
+focg::Scene depthBuffer()
+{
+    focg::Scene scene;
+    scene.triangles = {
+        {
+            { {100.,  100.,  0., 1.}, math::hdr::gRed * 0.8 },
+            { {600.,  400., 10., 1.}, math::hdr::gRed * 0.8 },
+            { {100.,  700.,  0., 1.}, math::hdr::gRed * 0.8 },
+        },
+        {
+            { {700.,  100.,  0., 1.}, math::hdr::gBlue * 0.8 },
+            { {200.,  400., 10., 1.}, math::hdr::gBlue * 0.8 },
+            { {700.,  700.,  0., 1.}, math::hdr::gBlue * 0.8 },
+        }
+    };
+
+    return scene;
+}
+
 void renderImage(const focg::Scene & aScene,
-                 const focg::GraphicsPipeline & aPipeline,
+                 const focg::NaivePipeline & aPipeline,
                  filesystem::path aImageFilePath,
                  math::Size<2, int> aResolution)
 {
@@ -153,15 +172,18 @@ void renderImage(const focg::Scene & aScene,
 
 void renderAll(filesystem::path aImagePath, math::Size<2, int> aResolution)
 {
-    focg::GraphicsPipeline pipeline;
-    pipeline.renderMode = focg::GraphicsPipeline::Wireframe | focg::GraphicsPipeline::Fill;
-    //pipeline.renderMode = focg::GraphicsPipeline::Wireframe;
 
     lineTest(aImagePath, aResolution);
     rgbTriangle(aImagePath, aResolution);
 
+    focg::NaivePipeline pipeline;
+    pipeline.renderMode = focg::NaivePipeline::Wireframe | focg::NaivePipeline::Fill;
+    //pipeline.renderMode = focg::NaivePipeline::Wireframe;
     renderImage(lineClipping(),     pipeline, aImagePath / "ch8_clipping_lines.ppm",     aResolution);
     renderImage(triangleClipping(), pipeline, aImagePath / "ch8_clipping_triangles.ppm", aResolution);
+
+    focg::NaivePipeline pipelineZBuffered;
+    renderImage(depthBuffer(),      pipeline, aImagePath / "ch8_depth_buffer.ppm",       aResolution);
 }
 
 int main(int argc, char ** argv)
