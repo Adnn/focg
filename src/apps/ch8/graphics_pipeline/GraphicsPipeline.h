@@ -12,13 +12,48 @@ namespace ad {
 namespace focg {
 
 
+template <class T_pixel = math::sdr::Rgb, class T_depthValue = double>
+struct ImageBuffer
+{
+    ImageBuffer(math::Size<2, int> aResolution, T_pixel aDefaultColor = T_pixel{0, 0, 0});
+
+    math::Size<2, int> getResolution() const
+    { return color.dimensions(); }
+
+    template <class T_position>
+    double & depthAt(T_position aPosition)
+    { return depth[aPosition.x() + aPosition.y() * color.width()]; }
+
+    arte::Image<T_pixel> color;
+    std::vector<T_depthValue> depth;
+};
+
+
+template <class T_pixel, class T_depthValue>
+ImageBuffer<T_pixel, T_depthValue>::ImageBuffer(math::Size<2, int> aResolution, T_pixel aDefaultColor) :
+    color{aResolution, aDefaultColor},
+    depth((std::size_t)aResolution.area(), std::numeric_limits<T_depthValue>::min())
+{}
+
+
+template <class T_targetBuffer>
+struct Program
+{
+    using FragmentShader =
+        void(*)(T_targetBuffer &, math::Position<2, int> /*aScreenPosition*/, double /*aDepth*/, math::sdr::Rgb);
+
+    FragmentShader fragment;
+};
+
+
 struct GraphicsPipeline
 {
 private:
     using RenderFlag = std::bitset<2>;
 
 public:
-    ad::arte::Image<> traverse(const Scene & aScene, math::Size<2, int> aResolution) const;
+    template <class T_targetBuffer, class T_program>
+    T_targetBuffer & traverse(const Scene & aScene, T_targetBuffer & aTarget, const T_program & aProgram) const;
 
     static constexpr RenderFlag Wireframe = 0b01;
     static constexpr RenderFlag Fill = 0b10;
@@ -26,9 +61,11 @@ public:
 };
 
 
-inline ad::arte::Image<> GraphicsPipeline::traverse(const Scene & aScene, math::Size<2, int> aResolution) const
+template <class T_targetBuffer, class T_program>
+T_targetBuffer & GraphicsPipeline::traverse(const Scene & aScene,
+                                            T_targetBuffer & aTarget,
+                                            const T_program & aProgram) const
 {
-    ad::arte::Image<> image{aResolution, math::sdr::gBlack};
     ViewVolume volume{math::Box<double>{
         // Important 0.5 offset, because the integer coordinate are at pixel centers!
         // there is nonetheless an issue, since -0.5 rounds to -1 and 0.5 rounds to 1
@@ -40,14 +77,15 @@ inline ad::arte::Image<> GraphicsPipeline::traverse(const Scene & aScene, math::
 
         // A Q&D solution is to restrain the view volume by some arbitrary amount
         {-0.45, -0.45, 500.},
-        {static_cast<math::Size<2, double>>(aResolution) - math::Size<2, double>{0.1, 0.1}, 1000.},
+        {static_cast<math::Size<2, double>>(aTarget.getResolution()) - math::Size<2, double>{0.1, 0.1}, 1000.},
     }};
 
+    // TODO adress proper line drawing via shader and depth buffer
     for (const auto & line : aScene.lines)
     {
         if (auto clippedLine = clip(line, volume))
         {
-            rasterizeLine(*clippedLine, image, ad::math::sdr::gWhite);
+            rasterizeLine(*clippedLine, aTarget.color, ad::math::sdr::gWhite);
         }
     }
 
@@ -57,20 +95,18 @@ inline ad::arte::Image<> GraphicsPipeline::traverse(const Scene & aScene, math::
         {
             if ((renderMode & Fill).any())
             {
-                rasterizeIncremental(triangle, image);
-                //rasterize(triangle, image);
-                //rasterizeBis(triangle, image);
+                rasterizeIncremental(triangle, aTarget, aProgram.fragment);
             }
             if ((renderMode & Wireframe).any())
             {
-                rasterizeLine(triangle.getLineC(), image);
-                rasterizeLine(triangle.getLineB(), image);
-                rasterizeLine(triangle.getLineA(), image);
+                rasterizeLine(triangle.getLineC(), aTarget.color);
+                rasterizeLine(triangle.getLineB(), aTarget.color);
+                rasterizeLine(triangle.getLineA(), aTarget.color);
             }
         }
     }
 
-    return image;
+    return aTarget;
 }
 
  

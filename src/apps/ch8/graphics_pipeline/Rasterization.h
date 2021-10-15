@@ -4,6 +4,8 @@
 #include "Line.h"
 #include "Triangle.h"
 
+#include <arte/Image.h>
+
 #include <math/Barycentric.h>
 #include <math/Color.h>
 #include <math/Vector.h>
@@ -163,7 +165,30 @@ void rasterize(const Triangle & aTriangle, T_raster & aRaster)
 
 
 template <class T_raster>
+void defaultFragmentShader(T_raster & aRaster, math::Position<2, int> aScreenPosition, double aDepth, math::sdr::Rgb aColor)
+{
+    if constexpr (std::is_same_v<T_raster, arte::Image<>>)
+    {
+        aRaster.at(aScreenPosition.x(), aScreenPosition.y()) = aColor;
+    }
+    else
+    {
+        aRaster.color.at(aScreenPosition.x(), aScreenPosition.y()) = aColor;
+    }
+}
+
+
+template <class T_raster>
 void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
+{
+    rasterizeIncremental(aTriangle, aRaster, &defaultFragmentShader<T_raster>);
+}
+
+
+template <class T_raster, class T_fragmentShader>
+void rasterizeIncremental(const Triangle & aTriangle, 
+                          T_raster & aRaster,
+                          const T_fragmentShader & aShader)
 {
     // Use to assign exactly tangent pixels on adjacent triangles (p 168)
     const HPos offscreenPoint{-1., -1., 0., 1.};
@@ -232,10 +257,15 @@ void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
                     && beta  > 0 || denominators.y() * fb(offscreenPoint) > 0
                     && gamma > 0 || denominators.z() * fc(offscreenPoint) > 0)
                 {
-                    aRaster.at(x, y) = to_sdr(
-                          alpha * aTriangle.a.color
-                        + beta  * aTriangle.b.color
-                        + gamma * aTriangle.c.color);
+                    auto z = alpha * aTriangle.a.pos.z()
+                           + beta  * aTriangle.b.pos.z()
+                           + gamma * aTriangle.c.pos.z();
+
+                    auto color = alpha * aTriangle.a.color
+                               + beta  * aTriangle.b.color
+                               + gamma * aTriangle.c.color;
+
+                    aShader(aRaster, {x, y}, z, to_sdr(color));
                 }
             }
             numerators += xIncrements;

@@ -2,6 +2,7 @@ set(TARGET_NAME ch8-graphics_pipeline)
 
 set(${TARGET_NAME}_HEADERS
     Clipping.h
+    GraphicsPipeline.h
     Line.h
     NaivePipeline.h
     Rasterization.h

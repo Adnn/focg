@@ -1,3 +1,4 @@
+#include "GraphicsPipeline.h"
 #include "NaivePipeline.h"
 #include "Scene.h"
 
@@ -146,14 +147,14 @@ focg::Scene depthBuffer()
     focg::Scene scene;
     scene.triangles = {
         {
-            { {100.,  100.,  0., 1.}, math::hdr::gRed * 0.8 },
-            { {600.,  400., 10., 1.}, math::hdr::gRed * 0.8 },
-            { {100.,  700.,  0., 1.}, math::hdr::gRed * 0.8 },
+            { {100.,  100.,  0., 1.}, math::hdr::gRed  },
+            { {600.,  400., 10., 1.}, math::hdr::gBlue  },
+            { {100.,  700.,  0., 1.}, math::hdr::gGreen  },
         },
         {
-            { {700.,  100.,  0., 1.}, math::hdr::gBlue * 0.8 },
-            { {200.,  400., 10., 1.}, math::hdr::gBlue * 0.8 },
-            { {700.,  700.,  0., 1.}, math::hdr::gBlue * 0.8 },
+            { {700.,  100.,  0., 1.}, math::hdr::gCyan  },
+            { {200.,  400., 10., 1.}, math::hdr::gYellow  },
+            { {700.,  700.,  0., 1.}, math::hdr::gMagenta  },
         }
     };
 
@@ -169,6 +170,28 @@ void renderImage(const focg::Scene & aScene,
         .saveFile(aImageFilePath, arte::ImageOrientation::InvertVerticalAxis);
 }
 
+void renderImage(const focg::Scene & aScene,
+                 const focg::GraphicsPipeline & aPipeline,
+                 filesystem::path aImageFilePath,
+                 math::Size<2, int> aResolution)
+{
+    using Buffer = focg::ImageBuffer<>;
+    Buffer targetBuffer{aResolution};
+    focg::Program<Buffer> program{
+        [](Buffer & aRaster, math::Position<2, int> aScreenPosition, double aDepth, math::sdr::Rgb aColor)
+        {
+            // Near plane > Far plane, so the test is for superiority.
+            if (aDepth > aRaster.depthAt(aScreenPosition))
+            {
+                aRaster.color.at(aScreenPosition.x(), aScreenPosition.y()) = aColor;
+                aRaster.depthAt(aScreenPosition) = aDepth;
+            }
+        }
+    };
+    aPipeline.traverse(aScene, targetBuffer, program)
+        .color.saveFile(aImageFilePath, arte::ImageOrientation::InvertVerticalAxis);
+}
+
 
 void renderAll(filesystem::path aImagePath, math::Size<2, int> aResolution)
 {
@@ -182,9 +205,10 @@ void renderAll(filesystem::path aImagePath, math::Size<2, int> aResolution)
     renderImage(lineClipping(),     pipeline, aImagePath / "ch8_clipping_lines.ppm",     aResolution);
     renderImage(triangleClipping(), pipeline, aImagePath / "ch8_clipping_triangles.ppm", aResolution);
 
-    focg::NaivePipeline pipelineZBuffered;
-    renderImage(depthBuffer(),      pipeline, aImagePath / "ch8_depth_buffer.ppm",       aResolution);
+    focg::GraphicsPipeline pipelineZBuffered;
+    renderImage(depthBuffer(), pipelineZBuffered, aImagePath / "ch8_depth_buffer.ppm", aResolution);
 }
+
 
 int main(int argc, char ** argv)
 {
