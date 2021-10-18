@@ -1,5 +1,7 @@
 #include "GraphicsPipeline.h"
 #include "NaivePipeline.h"
+#include "ObjLoader.h"
+#include "ObjModels.h"
 #include "Scene.h"
 
 #include <math/Color.h>
