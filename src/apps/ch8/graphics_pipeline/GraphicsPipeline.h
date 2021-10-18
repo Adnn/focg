@@ -12,6 +12,7 @@ namespace ad {
 namespace focg {
 
 
+/// \brief Realizee the TargetBuffer concept
 template <class T_pixel = math::sdr::Rgb, class T_depthValue = double>
 struct ImageBuffer
 {
@@ -38,18 +39,19 @@ ImageBuffer<T_pixel, T_depthValue>::ImageBuffer(math::Size<2, int> aResolution, 
 {}
 
 
+/// \brief Models the programmable part of the pipeline.
 template <class T_vertex, class T_targetBuffer>
-struct Program
+struct StatelessProgram
 {
     using VertexShader = HPos(*)(const T_vertex & aVertex);
     using FragmentShader = math::sdr::Rgb(*)(math::sdr::Rgb);
 
-    Program(VertexShader aVertex, FragmentShader aFragment) :
+    StatelessProgram(VertexShader aVertex, FragmentShader aFragment) :
         vertex{std::move(aVertex)},
         fragment{std::move(aFragment)}
     {}
 
-    Program(FragmentShader aFragment) :
+    StatelessProgram(FragmentShader aFragment) :
         fragment{std::move(aFragment)}
     {}
 
@@ -64,8 +66,11 @@ private:
     using RenderFlag = std::bitset<2>;
 
 public:
+    /// Have each object in aScene travers the graphics pipeline, rasterizing to aTarget.
     template <class T_targetBuffer, class T_program>
-    T_targetBuffer & traverse(const Scene & aScene, T_targetBuffer & aTarget, const T_program & aProgram) const;
+    T_targetBuffer & traverse(
+        const Scene & aScene, T_targetBuffer & aTarget, const T_program & aProgram,
+        double aNear, double aFar) const;
 
     static constexpr RenderFlag Wireframe = 0b01;
     static constexpr RenderFlag Fill = 0b10;
@@ -76,31 +81,33 @@ public:
 template <class T_targetBuffer, class T_program>
 T_targetBuffer & GraphicsPipeline::traverse(const Scene & aScene,
                                             T_targetBuffer & aTarget,
-                                            const T_program & aProgram) const
+                                            const T_program & aProgram,
+                                            double aNear, double aFar) const
 {
-    // TODO handle near plane / far plane instead of hardcoding 500 and 1000
-    ViewVolume volume{math::Box<double>{
-        // Important 0.5 offset, because the integer coordinate are at pixel centers!
-        // there is nonetheless an issue, since -0.5 rounds to -1 and 0.5 rounds to 1
-        // (which tends to include adjacent pixels when clipping, thus overlapping to next line/column)
-        // changing from std::round to std::nearbyint seems to handle -0.5 and 0.5 as we need, but
-        // rounding errors make it not robust enough at the moment.
-        //{-0.5, -0.5, 500.},
-        //{static_cast<ad::math::Size<2, double>>(aResolution), 500.},
+    // The offset approach does not work well here.
+    //constexpr double e = 10E-3;
+    //ViewVolume volume{math::Box<double>::CenterOnOrigin({2. - e, 2. - e, 2. - e})};
+    ViewVolume volume{math::Box<double>::CenterOnOrigin({2., 2., 2.})};
 
-        // A Q&D solution is to restrain the view volume by some arbitrary amount
-        {-0.45, -0.45, 1000.},
-        {static_cast<math::Size<2, double>>(aTarget.getResolution()) - math::Size<2, double>{0.1, 0.1}, 2000.},
-    }};
+    // Substract {1, 1} from the resolution because we want vertices at {1.0, 1.0} in NDC
+    // to end up mapped to the last pixel coordinate (which is resolution - {1, 1}).
+    // This loosely corresponds the offset on the view volume in NaivePipeline.
+    const math::AffineMatrix<4> viewportTransform =
+        math::trans3d::ndcToViewport(
+            { 
+                {0., 0.},
+                static_cast<math::Size<2, double>>(aTarget.getResolution() - math::Size<2, int>{1, 1}) 
+            },
+            aNear, aFar);
 
     // TODO adress proper line drawing via shader and depth buffer
-    for (const auto & line : aScene.lines)
-    {
-        if (auto clippedLine = clip(line, volume))
-        {
-            rasterizeLine(*clippedLine, aTarget.color, ad::math::sdr::gWhite);
-        }
-    }
+    //for (const auto & line : aScene.lines)
+    //{
+    //    if (auto clippedLine = clip(line, volume))
+    //    {
+    //        rasterizeLine(*clippedLine, aTarget.color, ad::math::sdr::gWhite);
+    //    }
+    //}
 
     for (auto triangle : aScene.triangles)
     {
@@ -109,10 +116,18 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene & aScene,
         triangle.b.pos = aProgram.vertex(triangle.b);
         triangle.c.pos = aProgram.vertex(triangle.c);
 
+        // Now, the vertices coordinates are expressed in clip space
+
         // Clipping
-        for (const auto & triangle : clip(triangle, volume))
+        for (auto & triangle : clip(triangle, volume))
         {
-            // Rasterization of clipped primitives
+            // Perspective divide
+            triangle.perspectiveDivide();
+
+            // Viewport transform
+            triangle.transform(viewportTransform);
+
+            // Rasterization of primitives in viewport space
             if ((renderMode & Fill).any())
             {
                 rasterizeIncremental(

@@ -5,6 +5,10 @@
 #include "Rasterization.h"
 #include "Scene.h"
 
+#include <arte/Image.h>
+
+#include <math/Vector.h>
+
 #include <bitset>
 
 
@@ -18,7 +22,7 @@ private:
     using RenderFlag = std::bitset<2>;
 
 public:
-    ad::arte::Image<> traverse(const Scene & aScene, math::Size<2, int> aResolution) const;
+    arte::Image<> traverse(const Scene & aScene, math::Size<2, int> aResolution) const;
 
     static constexpr RenderFlag Wireframe = 0b01;
     static constexpr RenderFlag Fill = 0b10;
@@ -28,9 +32,9 @@ public:
 };
 
 
-inline ad::arte::Image<> NaivePipeline::traverse(const Scene & aScene, math::Size<2, int> aResolution) const
+inline arte::Image<> NaivePipeline::traverse(const Scene & aScene, math::Size<2, int> aResolution) const
 {
-    ad::arte::Image<> image{aResolution, math::sdr::gBlack};
+    arte::Image<> image{aResolution, math::sdr::gBlack};
 
     ViewVolume volume{math::Box<double>{
         // Important 0.5 offset, because the integer coordinate are at pixel centers!

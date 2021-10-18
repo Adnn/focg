@@ -8,6 +8,8 @@
 
 #include <arte/Image.h>
 
+#include <math/Vector.h>
+
 #include <vector>
 
 
@@ -17,7 +19,7 @@ namespace focg {
 
 struct Scene
 {
-    ad::arte::Image<> render(math::Size<2, int> aResolution);
+    arte::Image<> render(math::Size<2, int> aResolution);
 
     std::vector<Line> lines;
     std::vector<Triangle> triangles;

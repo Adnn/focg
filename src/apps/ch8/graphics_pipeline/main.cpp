@@ -3,12 +3,18 @@
 #include "ObjLoader.h"
 #include "ObjModels.h"
 #include "Scene.h"
+#include "Shaders.h"
+
+#include <arte/Image.h>
+
+#include <graphics/CameraUtilities.h>
 
 #include <math/Color.h>
 #include <math/Transformations.h>
 
-#include <arte/Image.h>
 #include <platform/Filesystem.h>
+
+#include <sstream>
 
 #include <cstdlib>
 
@@ -164,6 +170,57 @@ focg::Scene depthBuffer()
     return scene;
 }
 
+
+void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> aResolution)
+{
+    focg::Scene scene;
+    appendToScene(std::istringstream{focg::gCubeObj}, scene);
+
+    focg::GraphicsPipeline pipeline;
+    pipeline.renderMode = focg::NaivePipeline::Wireframe;
+
+    using Buffer = focg::ImageBuffer<>;
+    Buffer targetBuffer{aResolution};
+
+    focg::TransformAndLighting program;
+
+    //const double nearPlaneZ = -90;
+    const double nearPlaneZ = -30;
+    const double farPlaneZ = -400;
+    const double depth = nearPlaneZ - farPlaneZ;
+
+    const double cubeSize = 100.;
+    math::AffineMatrix<4> modelling = 
+        math::trans3d::translate(math::Vec<3>{-0.5, -0.5, -0.5})
+        * math::trans3d::scale(cubeSize, cubeSize, cubeSize);
+
+    //math::Position<3> cameraPosition{-150., 100., 100.};
+    math::Position<3> cameraPosition{0., 0., 100.};
+    //cameraPosition *= 10.;
+    math::Position<3> looksAt{0., 0., 0.};
+    math::AffineMatrix<4> camera = graphics::getCameraTransform(cameraPosition, looksAt - cameraPosition);
+
+    math::Matrix<4, 4> perspective = math::trans3d::perspective(nearPlaneZ, farPlaneZ);
+    //math::Matrix<4, 4> perspective = math::Matrix<4, 4>::Identity();
+
+    const double shownHeight = 150;
+    math::AffineMatrix<4> orthographic =
+        math::trans3d::orthographicProjection(math::Box<double>::CenterOnOrigin({
+            math::makeSizeFromHeight<double>(shownHeight, math::getRatio<double>(aResolution)),
+            depth}));
+
+    program.transformation = 
+        modelling 
+        * camera
+        * perspective
+    //    * orthographic
+        ;
+
+    pipeline.traverse(scene, targetBuffer, program, nearPlaneZ, farPlaneZ)
+        .color.saveFile(aImageFilePath, arte::ImageOrientation::InvertVerticalAxis);
+}
+
+
 void renderImage(const focg::Scene & aScene,
                  const focg::NaivePipeline & aPipeline,
                  filesystem::path aImageFilePath,
@@ -181,7 +238,7 @@ void renderImage(const focg::Scene & aScene,
     using Buffer = focg::ImageBuffer<>;
     Buffer targetBuffer{aResolution};
 
-    focg::Program<focg::Vertex, Buffer> program{
+    focg::StatelessProgram<focg::Vertex, Buffer> program{
         [](const focg::Vertex & aVertex) -> focg::HPos
         {
             static math::AffineMatrix<4> transform = 
@@ -197,7 +254,8 @@ void renderImage(const focg::Scene & aScene,
         }
     };
 
-    aPipeline.traverse(aScene, targetBuffer, program)
+    // Hardcoded depth planes
+    aPipeline.traverse(aScene, targetBuffer, program, 500, 1000)
         .color.saveFile(aImageFilePath, arte::ImageOrientation::InvertVerticalAxis);
 }
 
@@ -217,6 +275,8 @@ void renderAll(filesystem::path aImagePath, math::Size<2, int> aResolution)
     focg::GraphicsPipeline pipelineZBuffered;
     //pipelineZBuffered.renderMode = focg::NaivePipeline::Wireframe | focg::NaivePipeline::Fill;
     renderImage(depthBuffer(), pipelineZBuffered, aImagePath / "ch8_depth_buffer.ppm", aResolution);
+
+    renderPerspectiveCube(aImagePath / "ch8_perspective_cube.ppm", aResolution);
 }
 
 

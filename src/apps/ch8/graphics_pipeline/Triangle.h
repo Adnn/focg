@@ -7,6 +7,8 @@
 #include <math/Rectangle.h>
 #include <math/Vector.h>
 
+#include <string>
+
 
 namespace ad {
 namespace focg {
@@ -17,7 +19,7 @@ using Rectangle = math::Rectangle<double>;
 
 struct Vertex
 {
-    /*implicit*/ operator HPos & () 
+    /*implicit*/ operator HPos & ()
     {
         return pos;
     }
@@ -37,6 +39,21 @@ struct Triangle
     Vertex a;
     Vertex b;
     Vertex c;
+
+    Vertex & at(std::size_t aIndex)
+    {
+        switch (aIndex)
+        {
+        default:
+            throw std::domain_error{"Invalid indice: " + std::to_string(aIndex)};
+        case 0:
+            return a;
+        case 1:
+            return b;
+        case 2:
+            return c;
+        }
+    }
 
     double xmin() const
     {
@@ -86,6 +103,22 @@ struct Triangle
     auto getFc() const
     {
         return getLineC().getImplicitEquation();
+    }
+
+    Triangle & transform(math::AffineMatrix<4> aTransformation)
+    {
+        a.pos *= aTransformation;
+        b.pos *= aTransformation;
+        c.pos *= aTransformation;
+        return *this;
+    }
+
+    Triangle & perspectiveDivide()
+    {
+        a.pos /= a.pos.w();
+        b.pos /= b.pos.w();
+        c.pos /= c.pos.w();
+        return *this;
     }
 };
 
