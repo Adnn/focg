@@ -185,8 +185,8 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
     focg::TransformAndLighting program;
 
     //const double nearPlaneZ = -90;
-    const double nearPlaneZ = -30;
-    const double farPlaneZ = -400;
+    const double nearPlaneZ = -50;
+    const double farPlaneZ = -150;
     const double depth = nearPlaneZ - farPlaneZ;
 
     const double cubeSize = 100.;
@@ -203,17 +203,19 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
     math::Matrix<4, 4> perspective = math::trans3d::perspective(nearPlaneZ, farPlaneZ);
     //math::Matrix<4, 4> perspective = math::Matrix<4, 4>::Identity();
 
-    const double shownHeight = 150;
-    math::AffineMatrix<4> orthographic =
-        math::trans3d::orthographicProjection(math::Box<double>::CenterOnOrigin({
-            math::makeSizeFromHeight<double>(shownHeight, math::getRatio<double>(aResolution)),
-            depth}));
+    const double shownHeight = 100;
+    math::Box<double> projected = math::Box<double>::CenterOnOrigin({
+        math::makeSizeFromHeight<double>(shownHeight, math::getRatio<double>(aResolution)),
+        depth});
+    projected.origin().z() = nearPlaneZ;
 
+
+    math::AffineMatrix<4> orthographic = math::trans3d::orthographicProjection(projected);
     program.transformation = 
         modelling 
         * camera
         * perspective
-    //    * orthographic
+        * orthographic
         ;
 
     pipeline.traverse(scene, targetBuffer, program, nearPlaneZ, farPlaneZ)
