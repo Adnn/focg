@@ -156,14 +156,14 @@ focg::Scene depthBuffer()
     focg::Scene scene;
     scene.triangles = {
         {
-            { {100.,  100., -10., 1.}, math::hdr::gRed  },
-            { {600.,  400.,  10., 1.}, math::hdr::gBlue  },
-            { {100.,  700., -10., 1.}, math::hdr::gGreen  },
+            { {-0.8, -0.8, -0.5, 1.}, math::hdr::gRed  },
+            { { 0.2,  0.0,  0.5, 1.}, math::hdr::gBlue  },
+            { {-0.8,  0.8, -0.5, 1.}, math::hdr::gGreen  },
         },
         {
-            { {700.,  100., -10., 1.}, math::hdr::gCyan  },
-            { {200.,  400.,  10., 1.}, math::hdr::gYellow  },
-            { {700.,  700., -10., 1.}, math::hdr::gMagenta  },
+            { { 0.8, -0.8, -0.5, 1.}, math::hdr::gCyan  },
+            { {-0.2,  0.0,  0.5, 1.}, math::hdr::gYellow  },
+            { { 0.8,  0.8, -0.5, 1.}, math::hdr::gMagenta  },
         }
     };
 
@@ -245,10 +245,7 @@ void renderImage(const focg::Scene & aScene,
         [](const focg::Vertex & aVertex) -> focg::HPos
         {
             static math::AffineMatrix<4> transform = 
-                math::trans3d::translate<double>({-400., -400., 0.})
-                * math::trans3d::rotateZ(math::Degree<double>{45.})
-                * math::trans3d::translate<double>({ 400., 400., 0.})
-                ;
+                math::trans3d::rotateZ(math::Degree<double>{45.});
             return aVertex.pos * transform;
         },
         [](math::sdr::Rgb aColor)
@@ -258,7 +255,7 @@ void renderImage(const focg::Scene & aScene,
     };
 
     // Hardcoded depth planes
-    aPipeline.traverse(aScene, targetBuffer, program, 500, 1000)
+    aPipeline.traverse(aScene, targetBuffer, program, 500, -500)
         .color.saveFile(aImageFilePath, arte::ImageOrientation::InvertVerticalAxis);
 }
 
