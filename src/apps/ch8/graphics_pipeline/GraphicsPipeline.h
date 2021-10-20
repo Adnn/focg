@@ -87,6 +87,10 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene & aScene,
     // The offset approach does not work well here.
     //constexpr double e = 10E-3;
     //ViewVolume volume{math::Box<double>::CenterOnOrigin({2. - e, 2. - e, 2. - e})};
+
+    // NOTE: The pipeline expects the output of the vertex processing stage to be in clip space
+    // (i.e. OpenGL convention).
+    // Thus, clipping is done against the simple case of unit cube.
     ViewVolume volume{math::Box<double>::CenterOnOrigin({2., 2., 2.})};
 
     // Substract {1, 1} from the resolution because we want vertices at {1.0, 1.0} in NDC
@@ -109,18 +113,20 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene & aScene,
     //    }
     //}
 
-    for (auto triangle : aScene.triangles)
+    for (const auto & triangleScene : aScene.triangles)
     {
+        auto triangleVertexStage = triangleScene;
         // Vertex shader
-        triangle.a.pos = aProgram.vertex(triangle.a);
-        triangle.b.pos = aProgram.vertex(triangle.b);
-        triangle.c.pos = aProgram.vertex(triangle.c);
+        triangleVertexStage.a.pos = aProgram.vertex(triangleVertexStage.a);
+        triangleVertexStage.b.pos = aProgram.vertex(triangleVertexStage.b);
+        triangleVertexStage.c.pos = aProgram.vertex(triangleVertexStage.c);
 
         // Now, the vertices coordinates are expressed in clip space
 
         // Clipping
-        for (auto & triangle : clip(triangle, volume))
+        for (const auto & triangleClipped: clip(triangleVertexStage, volume))
         {
+            auto triangle = triangleClipped;
             // Perspective divide
             triangle.perspectiveDivide();
 
