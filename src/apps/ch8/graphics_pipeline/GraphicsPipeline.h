@@ -84,23 +84,23 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene & aScene,
                                             const T_program & aProgram,
                                             double aNear, double aFar) const
 {
-    // The offset approach does not work well here.
-    //constexpr double e = 10E-3;
-    //ViewVolume volume{math::Box<double>::CenterOnOrigin({2. - e, 2. - e, 2. - e})};
-
     // NOTE: The pipeline expects the output of the vertex processing stage to be in clip space
     // (i.e. OpenGL convention).
     // Thus, clipping is done against the simple case of unit cube.
     ViewVolume volume{math::Box<double>::CenterOnOrigin({2., 2., 2.})};
 
-    // Substract {1, 1} from the resolution because we want vertices at {1.0, 1.0} in NDC
-    // to end up mapped to the last pixel coordinate (which is resolution - {1, 1}).
-    // This loosely corresponds the offset on the view volume in NaivePipeline.
+    // NOTE: The initial view volume (and the NDC unit cube) should be mapped to the whole viewport,
+    // not to the pixel center range (which goes from (0, 0) to resolution - (1, 1)).
+    // Since the pixel center are assigned integer indices in the viewport, its origin is at {-0.5, -0.5}.
+    // NOTE: For the same reason than in NaivePipeline, the exact viewport has to be offset by a small epsilon,
+    // otherwise the floating point rounding errors (and round() behaviour) might map 
+    // a position exactly on the edge of the view volume to a pixel just outside the viewport.
+    constexpr math::Vec<2> epsilon{0.1, 0.1};
     const math::AffineMatrix<4> viewportTransform =
         math::trans3d::ndcToViewport(
             { 
-                {0., 0.},
-                static_cast<math::Size<2, double>>(aTarget.getResolution() - math::Size<2, int>{1, 1}) 
+                math::Position<2>{-0.5, -0.5} + epsilon,
+                static_cast<math::Size<2, double>>(aTarget.getResolution())  - 2 * epsilon.as<math::Size>()
             },
             aNear, aFar);
 

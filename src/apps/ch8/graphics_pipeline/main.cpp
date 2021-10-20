@@ -177,7 +177,7 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
     appendToScene(std::istringstream{focg::gCubeObj}, scene);
 
     focg::GraphicsPipeline pipeline;
-    pipeline.renderMode = focg::NaivePipeline::Wireframe;
+    //pipeline.renderMode = focg::NaivePipeline::Wireframe;
 
     using Buffer = focg::ImageBuffer<>;
     Buffer targetBuffer{aResolution};
