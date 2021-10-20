@@ -184,7 +184,6 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
 
     focg::TransformAndLighting program;
 
-    // ISSUE: Clipping from the back generate incorrect triangles from the clipping code.
     const double nearPlaneZ = -20;
     const double farPlaneZ = -149;
     const double depth = nearPlaneZ - farPlaneZ;

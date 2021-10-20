@@ -198,8 +198,14 @@ inline void clip_impl(const Triangle & aTriangle,
                 std::swap(a, b);
             }
 
-            double t_ac = aVolume.solveForT(planeId, a, c);
-            double t_bc = aVolume.solveForT(planeId, b, c);
+            // NOTE: It is not possible to na�vely solve the intersection in homogeneous (clipping) space.
+            // As a simple workaround, do the perspective division now.
+            HPos adiv = a.pos / a.pos.w();
+            HPos bdiv = b.pos / b.pos.w();
+            HPos cdiv = c.pos / c.pos.w();
+
+            double t_ac = aVolume.solveForT(planeId, adiv, cdiv);
+            double t_bc = aVolume.solveForT(planeId, bdiv, cdiv);
 
             // Define intersection position, and interpolate colors
             Vertex vertexAC{a.pos + t_ac * (c.pos - a.pos), math::lerp(a.color, c.color, t_ac)};
