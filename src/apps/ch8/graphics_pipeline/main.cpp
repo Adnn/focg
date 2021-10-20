@@ -184,7 +184,8 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
 
     focg::TransformAndLighting program;
 
-    const double nearPlaneZ = -70;
+    // ISSUE: The clipping code generates geometry *outside* the clipping volume
+    const double nearPlaneZ = -60;
     const double farPlaneZ = -150;
     const double depth = nearPlaneZ - farPlaneZ;
 
