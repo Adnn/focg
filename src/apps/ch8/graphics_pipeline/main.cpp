@@ -184,8 +184,8 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
 
     focg::TransformAndLighting program;
 
-    const double nearPlaneZ = -60;
-    const double farPlaneZ = -150;
+    const double nearPlaneZ = -30;
+    const double farPlaneZ = -500; // make room for a second cube behind the first.
     const double depth = nearPlaneZ - farPlaneZ;
 
     const double cubeSize = 100.;
@@ -246,6 +246,29 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
 
     pipeline.traverse(scene, targetBuffer, program, nearPlaneZ, farPlaneZ)
         .color.saveFile(aImageFilePath, arte::ImageOrientation::InvertVerticalAxis);
+
+    // NOTE: I think the essential difference between our custom projection and OpenGL projection
+    // is that OpenGL's projection change negate the Z value
+    // i.e. it additionnally changes from right handed coordinate frame to left handed (with Z axis going into the screen).
+    // This does change the Z-buffer passing condition from > to <.
+
+    // Draw a blue cube behind the white cube. 
+    // Allows for easy comparison of behaviours for depth tests.
+    // IMPORTANT: since it is behind, it will not appear when depth test is enabled!
+    {
+        focg::Scene scene;
+        appendToScene(std::istringstream{focg::gCubeObj}, scene, math::hdr::gBlue);
+
+        program.transformation = 
+            modelling * math::trans3d::translate(math::Vec<3>{0., 0., -120.})
+            * camera
+            * customProjection
+            //* openGLPerspectiveProjection
+            ;
+
+        pipeline.traverse(scene, targetBuffer, program, nearPlaneZ, farPlaneZ)
+            .color.saveFile(aImageFilePath, arte::ImageOrientation::InvertVerticalAxis);
+    }
 }
 
 
