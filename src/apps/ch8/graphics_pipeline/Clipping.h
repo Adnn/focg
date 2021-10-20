@@ -240,7 +240,8 @@ inline void clip_impl(const Triangle & aTriangle,
             Vertex vertexAC{adiv + t_ac * (cdiv - adiv), math::lerp(a.color, c.color, t_ac)};
             Vertex vertexBC{bdiv + t_bc * (cdiv - bdiv), math::lerp(b.color, c.color, t_bc)};
 
-            if (fc < 0) // c is on the in side of the plane, spawn a single triangle
+            // NOTE evaluation == 0 is also considering the point on the in side.
+            if (fc <= 0) // c is on the *in* side of the plane, spawn a single triangle
             {
                 clip_impl({vertexAC, vertexBC, c}, aInserter, aVolume, aStartingPlane + 1);
                 return;
