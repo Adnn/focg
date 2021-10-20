@@ -105,7 +105,7 @@ struct Triangle
         return getLineC().getImplicitEquation();
     }
 
-    Triangle & transform(math::AffineMatrix<4> aTransformation)
+    Triangle & transform(const math::AffineMatrix<4> & aTransformation)
     {
         a.pos *= aTransformation;
         b.pos *= aTransformation;
