@@ -165,11 +165,11 @@ inline void clip_impl(const Triangle & aTriangle,
         double fb = aVolume.evaluate(planeId, aTriangle.b);
         double fc = aVolume.evaluate(planeId, aTriangle.c);
 
-        if (fa < 0. && fb < 0. && fc < 0.) // all outside
+        if (fa > 0. && fb > 0. && fc > 0.) // all outside
         {
             return; // no insertion taking place
         }
-        else if (fa < 0. || fb < 0. || fc < 0) // points are on different sides 
+        else if (fa > 0. || fb > 0. || fc > 0) // points are on different sides 
                                                // (at least one outside, but not all)
         {
             Vertex a = aTriangle.a;
@@ -205,7 +205,7 @@ inline void clip_impl(const Triangle & aTriangle,
             Vertex vertexAC{a.pos + t_ac * (c.pos - a.pos), math::lerp(a.color, c.color, t_ac)};
             Vertex vertexBC{b.pos + t_bc * (c.pos - b.pos), math::lerp(b.color, c.color, t_bc)};
 
-            if (fc > 0) // c is on the in side of the plane, spawn a single triangle
+            if (fc < 0) // c is on the in side of the plane, spawn a single triangle
             {
                 clip_impl({vertexAC, vertexBC, c}, aInserter, aVolume, aStartingPlane + 1);
                 return;
