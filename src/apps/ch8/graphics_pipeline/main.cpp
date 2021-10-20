@@ -193,7 +193,6 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
         math::trans3d::translate(math::Vec<3>{-0.5, -0.5, -0.5})
         * math::trans3d::scale(cubeSize, cubeSize, cubeSize);
 
-    //math::Position<3> cameraPosition{-150., 100., 100.};
     math::Position<3> cameraPosition{0., 0., 100.};
     math::Position<3> looksAt{0., 0., 0.};
     math::Vec<3> gazeDirection = looksAt - cameraPosition;
@@ -210,14 +209,39 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
         math::makeSizeFromHeight<double>(shownHeight, math::getRatio<double>(aResolution)),
         depth});
     projected.origin().z() = nearPlaneZ;
-
+    std::cout << "Projected box in world: " << projected << "\n";
 
     math::AffineMatrix<4> orthographic = math::trans3d::orthographicProjection(projected);
+    math::Matrix<4, 4> customProjection = perspective * orthographic; 
+
+    math::Matrix<4, 4> openGLPerspectiveProjection = [&](){
+        double n = std::abs(nearPlaneZ);
+        double f = std::abs(farPlaneZ);
+        double l = -shownHeight/2.;
+        double r = shownHeight/2.;
+        double b = -shownHeight / 2.;
+        double t = shownHeight / 2.;
+
+        return math::Matrix<4, 4>{
+            2 * n / (r-l),  0.,             0.,             0.,
+            0.,             2*n / (t - b),  0.,             0.,
+            (r+l)/(r-l),    (t+b)/(t-b),    (n+f)/(n-f),    -1.,
+            0.,             0.,             2*f*n/(n-f),    0.
+        };
+    }();
+
+    std::cout << "\nPerspective:\n" << (perspective).transpose()
+              << "\n\nOrthographic:\n" << (orthographic).transpose()
+              << "\n\nCustom Complete projection:\n" << (customProjection).transpose()
+              << "\n\nOpenGL Complete projection:\n" << (openGLPerspectiveProjection).transpose() 
+              << "\n";
+
+
     program.transformation = 
         modelling 
         * camera
-        * perspective
-        * orthographic
+        * customProjection
+        //* openGLPerspectiveProjection
         ;
 
     pipeline.traverse(scene, targetBuffer, program, nearPlaneZ, farPlaneZ)
