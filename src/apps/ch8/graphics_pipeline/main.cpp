@@ -184,8 +184,7 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
 
     focg::TransformAndLighting program;
 
-    // ISSUE: Clipping from near plane generate incorrect vertices positions.
-    const double nearPlaneZ = -60;
+    const double nearPlaneZ = -80;
     const double farPlaneZ = -150;
     const double depth = nearPlaneZ - farPlaneZ;
 

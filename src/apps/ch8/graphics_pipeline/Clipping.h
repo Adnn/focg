@@ -198,7 +198,12 @@ inline void clip_impl(const Triangle & aTriangle,
                 std::swap(a, b);
             }
 
-            // NOTE: It is not possible to na�vely solve the intersection in homogeneous (clipping) space.
+            // TODO proper clipping in homogenous space
+            // see: https://fabiensanglard.net/polygon_codec/
+            // see: https://fabiensanglard.net/polygon_codec/clippingdocument/p245-blinn.pdf (CLIPPING USING HOMOGENEOUS COORDINATES, Blinn)
+            // see: https://fabiensanglard.net/polygon_codec/clippingdocument/Clipping.pdf (Clipping, Kenneth I. Joy)
+
+            // NOTE: It is not possible to naively solve the intersection in homogeneous (clipping) space.
             // As a simple workaround, do the perspective division now.
             HPos adiv = a.pos / a.pos.w();
             HPos bdiv = b.pos / b.pos.w();
@@ -207,9 +212,12 @@ inline void clip_impl(const Triangle & aTriangle,
             double t_ac = aVolume.solveForT(planeId, adiv, cdiv);
             double t_bc = aVolume.solveForT(planeId, bdiv, cdiv);
 
+            // NOTE: Interpolating homogenenous (clipping) positions does not work either.
+            // Interpolate the projected (w==1) position above. This probably loses information from w.
+
             // Define intersection position, and interpolate colors
-            Vertex vertexAC{a.pos + t_ac * (c.pos - a.pos), math::lerp(a.color, c.color, t_ac)};
-            Vertex vertexBC{b.pos + t_bc * (c.pos - b.pos), math::lerp(b.color, c.color, t_bc)};
+            Vertex vertexAC{adiv + t_ac * (cdiv - adiv), math::lerp(a.color, c.color, t_ac)};
+            Vertex vertexBC{bdiv + t_bc * (cdiv - bdiv), math::lerp(b.color, c.color, t_bc)};
 
             if (fc < 0) // c is on the in side of the plane, spawn a single triangle
             {
