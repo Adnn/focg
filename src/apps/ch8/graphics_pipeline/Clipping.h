@@ -10,6 +10,8 @@
 
 #include <optional>
 
+#include <cassert>
+
 
 namespace ad {
 namespace focg {
@@ -197,6 +199,11 @@ inline void clip_impl(const Triangle & aTriangle,
                 std::swap(fa, fb);
                 std::swap(a, b);
             }
+
+            // ISSUE: After swapping, C must be alone on one side of the clipping plane.
+            assert(( (void)"Point C must be swapped alone on one side of the plane.",
+                     (fc <= 0. && fa > 0. && fb > 0.) || (fc > 0. && fa <= 0. && fb <= 0.) )
+            );
 
             // TODO proper clipping in homogenous space
             // see: https://fabiensanglard.net/polygon_codec/

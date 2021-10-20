@@ -184,7 +184,7 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
 
     focg::TransformAndLighting program;
 
-    const double nearPlaneZ = -80;
+    const double nearPlaneZ = -70;
     const double farPlaneZ = -150;
     const double depth = nearPlaneZ - farPlaneZ;
 
