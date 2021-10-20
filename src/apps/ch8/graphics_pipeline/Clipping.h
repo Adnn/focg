@@ -109,6 +109,17 @@ struct ViewVolume
 };
 
 
+/// \brief Returns true if both evaluations place the point on the same side of the plane
+///
+/// \important Both points are on the same side if:
+/// * both their evaluations are non-null and of the same sign 
+/// * or both are either negative or zero.
+bool onSameSide(double aLhs, double aRhs)
+{
+    double sign = aLhs * aRhs;
+    return (sign > 0.) || (sign == 0. && (aLhs + aRhs) <= 0.);
+}
+
 //
 // Lines
 //
@@ -183,7 +194,7 @@ inline void clip_impl(const Triangle & aTriangle,
             // * a & b are both on the other side
             // see FoCG 3rd p296
 
-            if (fa * fc >= 0) // b is alone on the other side
+            if (onSameSide(fa, fc)) // b is alone on the other side
             {
                 // rotate backward (a=c, b=a, c=b)
                 std::swap(fb, fc);
@@ -191,7 +202,7 @@ inline void clip_impl(const Triangle & aTriangle,
                 std::swap(fa, fb);
                 std::swap(a, b);
             }
-            else if (fb * fc >= 0) // a is alone on the otherside
+            else if (onSameSide(fb, fc)) // a is alone on the otherside
             {
                 // rotate forward (a=b, b=c, c=a)
                 std::swap(fa, fc);
@@ -200,7 +211,7 @@ inline void clip_impl(const Triangle & aTriangle,
                 std::swap(a, b);
             }
 
-            // ISSUE: After swapping, C must be alone on one side of the clipping plane.
+            // NOTE: After swapping, C must be alone on one side of the clipping plane.
             assert(( (void)"Point C must be swapped alone on one side of the plane.",
                      (fc <= 0. && fa > 0. && fb > 0.) || (fc > 0. && fa <= 0. && fb <= 0.) )
             );
@@ -218,6 +229,9 @@ inline void clip_impl(const Triangle & aTriangle,
 
             double t_ac = aVolume.solveForT(planeId, adiv, cdiv);
             double t_bc = aVolume.solveForT(planeId, bdiv, cdiv);
+
+            // NOTE: The solution must strictly be on the line segment.
+            assert( 0.0 <= t_ac && t_ac <= 1.0 && 0.0 <= t_bc && t_bc <= 1.0 );
 
             // NOTE: Interpolating homogenenous (clipping) positions does not work either.
             // Interpolate the projected (w==1) position above. This probably loses information from w.
