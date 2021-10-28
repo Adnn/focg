@@ -230,6 +230,8 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
     std::cout << "\nPerspective:\n" << (perspective).transpose()
               << "\n\nOrthographic:\n" << (orthographic).transpose()
               << "\n\nCustom Complete projection:\n" << (customProjection).transpose()
+              << "\n\nCustom Complete projection, negated Z:\n"
+                << (customProjection * math::AffineMatrix<4>{math::trans3d::scale(1., 1., -1.)}).transpose()
               << "\n\nOpenGL Complete projection:\n" << (openGLPerspectiveProjection).transpose() 
               << "\n";
 
