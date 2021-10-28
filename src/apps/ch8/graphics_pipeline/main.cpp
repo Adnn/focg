@@ -199,10 +199,7 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
     //math::Vec<3> gazeDirection{0., 0., -1.};
     math::AffineMatrix<4> camera = graphics::getCameraTransform(cameraPosition, gazeDirection);
 
-    // NOTE: Negate the perspective matrix, this way -Z is copied into W, which fixes
-    // the clipping tests (and respects OpenGL convetion that the test is -w < x, y, z < +w)
-    //math::Matrix<4, 4> perspective = math::trans3d::perspective(nearPlaneZ, farPlaneZ);
-    math::Matrix<4, 4> perspective = math::trans3d::perspective(nearPlaneZ, farPlaneZ) * -1;
+    math::Matrix<4, 4> perspective = math::trans3d::perspective(nearPlaneZ, farPlaneZ);
 
     const double shownHeight = 100;
     math::Box<double> projected = math::Box<double>::CenterOnOrigin({
