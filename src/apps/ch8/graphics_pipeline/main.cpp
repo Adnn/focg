@@ -171,13 +171,14 @@ focg::Scene depthBuffer()
 }
 
 
-void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> aResolution)
+void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> aResolution, 
+                           bool aDrawSecondCubeBehind = false)
 {
     focg::Scene scene;
     appendToScene(std::istringstream{focg::gCubeObj}, scene);
 
     focg::GraphicsPipeline pipeline;
-    //pipeline.renderMode = focg::NaivePipeline::Wireframe;
+    pipeline.renderMode = focg::NaivePipeline::Wireframe;
 
     using Buffer = focg::ImageBuffer<>;
     Buffer targetBuffer{aResolution};
@@ -254,6 +255,7 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
     // Draw a blue cube behind the white cube. 
     // Allows for easy comparison of behaviours for depth tests.
     // IMPORTANT: since it is behind, it will not appear when depth test is enabled!
+    if (aDrawSecondCubeBehind)
     {
         focg::Scene scene;
         appendToScene(std::istringstream{focg::gCubeObj}, scene, math::hdr::gBlue);
