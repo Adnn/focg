@@ -4,6 +4,7 @@
 #include "ObjModels.h"
 #include "Scene.h"
 #include "Shaders.h"
+#include "ShadingRenderer.h"
 
 #include <arte/Image.h>
 
@@ -183,7 +184,7 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
     using Buffer = focg::ImageBuffer<>;
     Buffer targetBuffer{aResolution};
 
-    focg::TransformAndLighting program;
+    focg::Transform program;
 
     const double nearPlaneZ = -30;
     const double farPlaneZ = -500; // make room for a second cube behind the first.
@@ -326,6 +327,10 @@ void renderAll(filesystem::path aImagePath, math::Size<2, int> aResolution)
     renderImage(depthBuffer(), pipelineZBuffered, aImagePath / "ch8_depth_buffer.ppm", aResolution);
 
     renderPerspectiveCube(aImagePath / "ch8_perspective_cube.ppm", aResolution);
+
+    filesystem::path animationFolder = aImagePath / "demo-anim";
+    create_directory(animationFolder);
+    focg::renderDemoScene(animationFolder);
 }
 
 

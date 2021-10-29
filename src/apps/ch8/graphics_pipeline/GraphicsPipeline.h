@@ -25,8 +25,15 @@ struct ImageBuffer
     double & depthAt(T_position aPosition)
     { return depth[aPosition.x() + aPosition.y() * color.width()]; }
 
+    void clear()
+    { 
+        color.clear(clearColor);
+        std::fill(depth.begin(), depth.end(), std::numeric_limits<T_depthValue>::lowest());
+    }
+
     arte::Image<T_pixel> color;
     std::vector<T_depthValue> depth;
+    T_pixel clearColor;
 };
 
 
@@ -35,7 +42,8 @@ ImageBuffer<T_pixel, T_depthValue>::ImageBuffer(math::Size<2, int> aResolution, 
     color{aResolution, aDefaultColor},
     // Near plane > Far plane, so the test is for superiority (hence min).
     // Important: for floating point, ::min() is the lowest positive value...
-    depth((std::size_t)aResolution.area(), std::numeric_limits<T_depthValue>::lowest())
+    depth((std::size_t)aResolution.area(), std::numeric_limits<T_depthValue>::lowest()),
+    clearColor{aDefaultColor}
 {}
 
 
