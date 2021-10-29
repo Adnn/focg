@@ -17,13 +17,18 @@ namespace ad {
 namespace focg {
 
 
-struct Scene
+template <class T_vertex>
+struct Scene_base
 {
     arte::Image<> render(math::Size<2, int> aResolution);
 
     std::vector<Line> lines;
-    std::vector<Triangle> triangles;
+    std::vector<Triangle_base<T_vertex>> triangles;
 };
+
+
+using Scene = Scene_base<Vertex>;
+
 
 inline ad::arte::Image<> Scene::render(math::Size<2, int> aResolution)
 {

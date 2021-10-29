@@ -5,7 +5,9 @@
 
 #include <fstream>
 #include <istream>
+#include <sstream>
 #include <string>
+#include <vector>
 
 
 namespace ad {
@@ -20,10 +22,26 @@ void appendToScene(const std::string & aFilename, Scene & aScene);
 #define ERR(x) throw std::logic_error{(x)}
 
 
-template <class T_colorStore>
-void appendToScene(std::istream & aInputObj, Scene & aScene, const T_colorStore & aColors)
+
+std::vector<std::string> splitString(const std::string & aString, char aDelimiter)
 {
-    std::vector<Vertex> vertices;
+    std::stringstream in{aString};
+    std::string segment;
+    std::vector<std::string> seglist;
+
+    while(std::getline(in, segment, aDelimiter))
+    {
+       seglist.push_back(segment);
+    }
+    return seglist;
+}
+
+
+template <class T_colorStore, class T_vertex>
+void appendToScene(std::istream & aInputObj, Scene_base<T_vertex> & aScene, const T_colorStore & aColors)
+{
+    std::vector<T_vertex> vertices;
+    std::vector<HVec> normals;
     for (std::string line; std::getline(aInputObj, line);)
     {
         std::istringstream input{line};
@@ -46,8 +64,8 @@ void appendToScene(std::istream & aInputObj, Scene & aScene, const T_colorStore 
             input >> x; input >> y; input >> z;
             if (input)
             {
-                vertices.push_back({
-                        {x, y, z, 1.0},
+                vertices.push_back(T_vertex{
+                        HPos{x, y, z, 1.0},
                         aColors[vertices.size() % aColors.size()]
                 });
             }
@@ -58,7 +76,11 @@ void appendToScene(std::istream & aInputObj, Scene & aScene, const T_colorStore 
         }
         // Vertex normal
         else if (type == "vn")
-        {}
+        {
+            double x, y, z;
+            input >> x; input >> y; input >> z;
+            normals.push_back({x, y, z, 0.0});
+        }
         // Texture coordinate
         else if (type == "vt")
         {}
@@ -66,10 +88,22 @@ void appendToScene(std::istream & aInputObj, Scene & aScene, const T_colorStore 
         {
             std::array<std::size_t, 3> triangleVertices;
             int count = 0;
-            for (std::string indices; input >> indices;)
+            for (std::string indicesStr; input >> indicesStr;)
             {
+                std::vector<std::string> indices = splitString(indicesStr, '/');
+                assert(indices.size() == 3);
+
                 // ATTENTION Obj format is 1-indexed
-                triangleVertices[count++] = std::stoul(indices.substr(0, indices.find("/"))) - 1;
+                std::size_t vertexIndex = std::stoul(indices[0]) - 1;
+                triangleVertices[count++] = vertexIndex;
+
+                if constexpr(! std::is_same_v<T_vertex, Vertex>)
+                {
+                    // If it is VertexAugmented
+                    std::size_t normalIndex = std::stoul(indices[2]) - 1;
+                    // Dirty: patch the vertex in the initial list each time with the normal.
+                    vertices.at(vertexIndex).normal = normals.at(normalIndex);
+                }
             }
 
             if (count != 3)
@@ -93,17 +127,18 @@ void appendToScene(std::istream & aInputObj, Scene & aScene, const T_colorStore 
 }
 
 
-template <class T_colorStore>
+template <class T_colorStore, class T_vertex>
 void appendToScene(const std::string & aFilename,
-                   Scene & aScene,
+                   Scene_base<T_vertex> & aScene,
                    const T_colorStore & aColors)
 {
     appendToScene(std::ifstream{aFilename}, aScene, aColors);
 }
 
 
+template <class T_vertex>
 inline void appendToScene(std::istream & aInputObj,
-                          Scene & aScene,
+                          Scene_base<T_vertex> & aScene,
                           math::hdr::Rgb aColor = math::hdr::gWhite)
 {
     appendToScene(aInputObj, aScene, std::vector<math::hdr::Rgb>{aColor});

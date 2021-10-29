@@ -14,6 +14,7 @@ namespace ad {
 namespace focg {
 
 using HPos = math::Position<4>;
+using HVec = math::Vec<4>;
 using Rectangle = math::Rectangle<double>;
 
 
@@ -34,11 +35,12 @@ struct Vertex
 };
 
 
-struct Triangle
+template <class T_vertex>
+struct Triangle_base
 {
-    Vertex a;
-    Vertex b;
-    Vertex c;
+    T_vertex a;
+    T_vertex b;
+    T_vertex c;
 
     Vertex & at(std::size_t aIndex)
     {
@@ -105,7 +107,7 @@ struct Triangle
         return getLineC().getImplicitEquation();
     }
 
-    Triangle & transform(const math::AffineMatrix<4> & aTransformation)
+    Triangle_base & transform(const math::AffineMatrix<4> & aTransformation)
     {
         a.pos *= aTransformation;
         b.pos *= aTransformation;
@@ -113,7 +115,7 @@ struct Triangle
         return *this;
     }
 
-    Triangle & perspectiveDivide()
+    Triangle_base & perspectiveDivide()
     {
         a.pos /= a.pos.w();
         b.pos /= b.pos.w();
@@ -121,6 +123,9 @@ struct Triangle
         return *this;
     }
 };
+
+
+using Triangle = Triangle_base<Vertex>;
 
 
 } // namespace focg

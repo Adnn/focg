@@ -166,8 +166,8 @@ inline std::optional<Line> clip(Line aLine, const ViewVolume & aVolume)
 //
 // Triangles
 //
-template <class T_insertIterator>
-inline void clip_impl(const Triangle & aTriangle,
+template <class T_vertex, class T_insertIterator>
+inline void clip_impl(const Triangle_base<T_vertex> & aTriangle,
                       T_insertIterator & aInserter,     
                       const ViewVolume & aVolume,
                       std::size_t aStartingPlane)
@@ -185,9 +185,9 @@ inline void clip_impl(const Triangle & aTriangle,
         else if (fa > 0. || fb > 0. || fc > 0) // points are on different sides 
                                                // (at least one outside, but not all)
         {
-            Vertex a = aTriangle.a;
-            Vertex b = aTriangle.b;
-            Vertex c = aTriangle.c;
+            T_vertex a = aTriangle.a;
+            T_vertex b = aTriangle.b;
+            T_vertex c = aTriangle.c;
 
             // Reorganize the triangle edges to make sure that:
             // * c is on one side
@@ -237,19 +237,19 @@ inline void clip_impl(const Triangle & aTriangle,
             // Interpolate the projected (w==1) position above. This probably loses information from w.
 
             // Define intersection position, and interpolate colors
-            Vertex vertexAC{adiv + t_ac * (cdiv - adiv), math::lerp(a.color, c.color, t_ac)};
-            Vertex vertexBC{bdiv + t_bc * (cdiv - bdiv), math::lerp(b.color, c.color, t_bc)};
+            T_vertex vertexAC{adiv + t_ac * (cdiv - adiv), math::lerp(a.color, c.color, t_ac)};
+            T_vertex vertexBC{bdiv + t_bc * (cdiv - bdiv), math::lerp(b.color, c.color, t_bc)};
 
             // NOTE evaluation == 0 is also considering the point on the in side.
             if (fc <= 0) // c is on the *in* side of the plane, spawn a single triangle
             {
-                clip_impl({vertexAC, vertexBC, c}, aInserter, aVolume, aStartingPlane + 1);
+                clip_impl<T_vertex>({vertexAC, vertexBC, c}, aInserter, aVolume, aStartingPlane + 1);
                 return;
             }
             else // c is outside, spawn two triangles
             {
-                clip_impl({a, b,        vertexAC}, aInserter, aVolume, aStartingPlane + 1);
-                clip_impl({b, vertexBC, vertexAC}, aInserter, aVolume, aStartingPlane + 1);
+                clip_impl<T_vertex>({a, b,        vertexAC}, aInserter, aVolume, aStartingPlane + 1);
+                clip_impl<T_vertex>({b, vertexBC, vertexAC}, aInserter, aVolume, aStartingPlane + 1);
                 return;
             }
         }
@@ -258,9 +258,10 @@ inline void clip_impl(const Triangle & aTriangle,
 }
 
 
-inline std::vector<Triangle> clip(const Triangle & aTriangle, const ViewVolume & aVolume)
+template <class T_vertex>
+inline std::vector<Triangle_base<T_vertex>> clip(const Triangle_base<T_vertex> & aTriangle, const ViewVolume & aVolume)
 {
-    std::vector<Triangle> result;
+    std::vector<Triangle_base<T_vertex>> result;
     clip_impl(aTriangle, std::back_inserter(result), aVolume, 0);
     return result;
 }
