@@ -298,9 +298,9 @@ void renderImage(const focg::Scene & aScene,
                 math::trans3d::rotateZ(math::Degree<double>{45.});
             return aVertex.pos * transform;
         },
-        [](math::sdr::Rgb aColor)
+        [](math::hdr::Rgb aColor)
         {
-            return aColor;
+            return to_sdr(aColor);
         }
     };
 

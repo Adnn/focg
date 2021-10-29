@@ -165,15 +165,15 @@ void rasterize(const Triangle & aTriangle, T_raster & aRaster)
 
 
 template <class T_raster>
-void defaultFragmentCallback(T_raster & aRaster, math::Position<2, int> aScreenPosition, double aFragmentDepth, math::sdr::Rgb aColor)
+void defaultFragmentCallback(T_raster & aRaster, math::Position<2, int> aScreenPosition, double aFragmentDepth, math::hdr::Rgb aColor)
 {
     if constexpr (std::is_same_v<T_raster, arte::Image<>>)
     {
-        aRaster.at(aScreenPosition.x(), aScreenPosition.y()) = aColor;
+        aRaster.at(aScreenPosition.x(), aScreenPosition.y()) = to_sdr(aColor);
     }
     else
     {
-        aRaster.color.at(aScreenPosition.x(), aScreenPosition.y()) = aColor;
+        aRaster.color.at(aScreenPosition.x(), aScreenPosition.y()) = to_sdr(aColor);
     }
 }
 
@@ -267,7 +267,23 @@ void rasterizeIncremental(const Triangle_base<T_vertex> & aTriangle,
                                + beta  * aTriangle.b.color
                                + gamma * aTriangle.c.color;
 
-                    aFragmentCallback(aRaster, {x, y}, z, to_sdr(color));
+                    if constexpr(std::is_same_v<T_vertex, Vertex>)
+                    {
+                        aFragmentCallback(aRaster, {x, y}, z, color);
+                    }
+                    else if constexpr(std::is_same_v<T_vertex, VertexAdvanced>)
+                    {
+                        auto normal = alpha * aTriangle.a.normal
+                                    + beta  * aTriangle.b.normal
+                                    + gamma * aTriangle.c.normal;
+                        normal.normalize();
+
+                        auto fragmentPos_c = alpha * aTriangle.a.fragmentPos_c
+                                           + beta  * aTriangle.b.fragmentPos_c.as<math::Vec>()
+                                           + gamma * aTriangle.c.fragmentPos_c.as<math::Vec>();
+
+                        aFragmentCallback(aRaster, {x, y}, z, color, normal, fragmentPos_c);
+                    }
                 }
             }
             numerators += xIncrements;

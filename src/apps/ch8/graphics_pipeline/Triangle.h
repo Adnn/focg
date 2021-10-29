@@ -35,6 +35,14 @@ struct Vertex
 };
 
 
+struct VertexAdvanced : public Vertex
+{
+    HVec normal{0., 0., 0., 0.}; // must have defaults, when creating the vertex set in the obj loader
+    HPos fragmentPos_c{0., 0., 0., 1.};
+};
+
+
+
 template <class T_vertex>
 struct Triangle_base
 {
