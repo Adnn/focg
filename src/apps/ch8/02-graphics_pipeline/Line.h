@@ -16,6 +16,7 @@ using Pos  = math::Position<2>;
 using HPos = math::Position<4>;
 
 
+// TODO templatize on T_vertex
 struct Line
 {
     Line(HPos a, HPos b) :

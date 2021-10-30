@@ -6,7 +6,6 @@ set(${TARGET_NAME}_HEADERS
     Line.h
     ObjLoader.h
     ObjModels.h
-    NaivePipeline.h
     Rasterization.h
     Scene.h
     Shaders.h

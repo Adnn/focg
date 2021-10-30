@@ -14,8 +14,6 @@ namespace ad {
 namespace focg {
 
 
-void appendToScene(const std::string & aFilename, Scene & aScene);
-
 //
 // Implementations
 //
@@ -38,7 +36,7 @@ std::vector<std::string> splitString(const std::string & aString, char aDelimite
 
 
 template <class T_colorStore, class T_vertex>
-void appendToScene(std::istream & aInputObj, Scene_base<T_vertex> & aScene, const T_colorStore & aColors)
+void appendToScene(std::istream & aInputObj, Scene<T_vertex> & aScene, const T_colorStore & aColors)
 {
     std::vector<T_vertex> vertices;
     std::vector<HVec> normals;
@@ -97,13 +95,10 @@ void appendToScene(std::istream & aInputObj, Scene_base<T_vertex> & aScene, cons
                 std::size_t vertexIndex = std::stoul(indices[0]) - 1;
                 triangleVertices[count++] = vertexIndex;
 
-                if constexpr(std::is_same_v<T_vertex, VertexAdvanced>)
-                {
-                    // If it is VertexAugmented
-                    std::size_t normalIndex = std::stoul(indices[2]) - 1;
-                    // Dirty: patch the vertex in the initial list each time with the normal.
-                    vertices.at(vertexIndex).normal = normals.at(normalIndex);
-                }
+                // Normal
+                std::size_t normalIndex = std::stoul(indices[2]) - 1;
+                // Dirty: patch the vertex in the initial list each time with the normal.
+                vertices.at(vertexIndex).normal = normals.at(normalIndex);
             }
 
             if (count != 3)
@@ -129,7 +124,7 @@ void appendToScene(std::istream & aInputObj, Scene_base<T_vertex> & aScene, cons
 
 template <class T_colorStore, class T_vertex>
 void appendToScene(const std::string & aFilename,
-                   Scene_base<T_vertex> & aScene,
+                   Scene<T_vertex> & aScene,
                    const T_colorStore & aColors)
 {
     appendToScene(std::ifstream{aFilename}, aScene, aColors);
@@ -138,7 +133,7 @@ void appendToScene(const std::string & aFilename,
 
 template <class T_vertex>
 inline void appendToScene(std::istream & aInputObj,
-                          Scene_base<T_vertex> & aScene,
+                          Scene<T_vertex> & aScene,
                           math::hdr::Rgb aColor = math::hdr::gWhite)
 {
     appendToScene(aInputObj, aScene, std::vector<math::hdr::Rgb>{aColor});

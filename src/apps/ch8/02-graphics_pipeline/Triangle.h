@@ -32,25 +32,20 @@ struct Vertex
 
     HPos pos;
     math::hdr::Rgb color;
-};
 
-
-struct VertexAdvanced : public Vertex
-{
     HVec normal{0., 0., 0., 0.}; // must have defaults, when creating the vertex set in the obj loader
     HPos fragmentPos_c{0., 0., 0., 1.};
 };
 
 
-
 template <class T_vertex>
-struct Triangle_base
+struct Triangle
 {
     T_vertex a;
     T_vertex b;
     T_vertex c;
 
-    Vertex & at(std::size_t aIndex)
+    T_vertex & at(std::size_t aIndex)
     {
         switch (aIndex)
         {
@@ -115,7 +110,7 @@ struct Triangle_base
         return getLineC().getImplicitEquation();
     }
 
-    Triangle_base & transform(const math::AffineMatrix<4> & aTransformation)
+    Triangle & transform(const math::AffineMatrix<4> & aTransformation)
     {
         a.pos *= aTransformation;
         b.pos *= aTransformation;
@@ -123,7 +118,7 @@ struct Triangle_base
         return *this;
     }
 
-    Triangle_base & perspectiveDivide()
+    Triangle & perspectiveDivide()
     {
         a.pos /= a.pos.w();
         b.pos /= b.pos.w();
@@ -132,8 +127,6 @@ struct Triangle_base
     }
 };
 
-
-using Triangle = Triangle_base<Vertex>;
 
 
 } // namespace focg

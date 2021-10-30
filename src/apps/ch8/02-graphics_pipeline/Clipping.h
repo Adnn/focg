@@ -167,7 +167,7 @@ inline std::optional<Line> clip(Line aLine, const ViewVolume & aVolume)
 // Triangles
 //
 template <class T_vertex, class T_insertIterator>
-inline void clip_impl(const Triangle_base<T_vertex> & aTriangle,
+inline void clip_impl(const Triangle<T_vertex> & aTriangle,
                       T_insertIterator & aInserter,     
                       const ViewVolume & aVolume,
                       std::size_t aStartingPlane)
@@ -259,9 +259,9 @@ inline void clip_impl(const Triangle_base<T_vertex> & aTriangle,
 
 
 template <class T_vertex>
-inline std::vector<Triangle_base<T_vertex>> clip(const Triangle_base<T_vertex> & aTriangle, const ViewVolume & aVolume)
+inline std::vector<Triangle<T_vertex>> clip(const Triangle<T_vertex> & aTriangle, const ViewVolume & aVolume)
 {
-    std::vector<Triangle_base<T_vertex>> result;
+    std::vector<Triangle<T_vertex>> result;
     clip_impl(aTriangle, std::back_inserter(result), aVolume, 0);
     return result;
 }
