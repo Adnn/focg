@@ -37,6 +37,12 @@ struct Timeline
 };
 
 
+struct VertexAdvanced : public Vertex
+{
+    HVec normal{0., 0., 0., 0.}; // must have defaults, when creating the vertex set in the obj loader
+};
+
+
 struct AnimatedScene
 {
     void update(const Timeline & aTimeline)
@@ -50,19 +56,15 @@ struct AnimatedScene
         }
     }
 
-    math::AffineMatrix<4> camera()
-    {
-        return graphics::getCameraTransform(cameraPosition, looksAt - cameraPosition);
-    }
-
-    math::Matrix<4, 4> projection(double aViewportRatio)
+    math::Matrix<4, 4> viewing(double aViewportRatio)
     {
         math::Box<double> projected = math::Box<double>::CenterOnOrigin({
             math::makeSizeFromHeight<double>(shownHeight, aViewportRatio), nearPlaneZ - farPlaneZ});
         projected.origin().z() = nearPlaneZ;
 
-        return math::trans3d::perspective(nearPlaneZ, farPlaneZ)
-               * math::trans3d::orthographicProjection(projected);
+        return graphics::getCameraTransform(cameraPosition, looksAt - cameraPosition) 
+            * math::trans3d::perspective(nearPlaneZ, farPlaneZ)
+            * math::trans3d::orthographicProjection(projected);
     }
 
     std::vector<std::pair<Scene_base<VertexAdvanced>, math::AffineMatrix<4>>> posedScenes;
@@ -110,11 +112,10 @@ void ShadingRenderer::render(AnimatedScene & aAnimation,
 
         for (const auto & [scene, localToWorld] : aAnimation.posedScenes)
         {
-            program.localToCamera = localToWorld * aAnimation.camera();
-            program.projection = aAnimation.projection(math::getRatio<double>(renderTarget.getResolution()));
+            program.transformation = localToWorld 
+                                     * aAnimation.viewing(math::getRatio<double>(renderTarget.getResolution()));
             pipeline.traverse(scene, renderTarget, program, aAnimation.nearPlaneZ, aAnimation.farPlaneZ)
-                .color.saveFile(aFolder / (aFileprefix + "-" + std::to_string(aTimeline.currentFrame) + ".ppm"),
-                                arte::ImageOrientation::InvertVerticalAxis);
+                .color.saveFile(aFolder / (aFileprefix + "-" + std::to_string(aTimeline.currentFrame) + ".ppm"));
         }
     }
 }
@@ -122,13 +123,13 @@ void ShadingRenderer::render(AnimatedScene & aAnimation,
 
 void renderDemoScene(const filesystem::path & aFolder,
                      math::Size<2, int> aResolution = {640, 640},
-                     double aFps = 5.,
+                     double aFps = 10.,
                      double aDuration = 4)
 {
     AnimatedScene animation;
     {
         focg::Scene_base<VertexAdvanced> cube;
-        appendToScene(std::istringstream{focg::gCubeObj}, cube, math::hdr::gCyan);
+        appendToScene(std::istringstream{focg::gCubeObj}, cube);
 
         const double cubeSize = 100.;
         math::AffineMatrix<4> modelling = 

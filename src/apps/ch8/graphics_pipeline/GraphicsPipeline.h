@@ -52,7 +52,7 @@ template <class T_vertex, class T_targetBuffer>
 struct StatelessProgram
 {
     using VertexShader = HPos(*)(const T_vertex & aVertex);
-    using FragmentShader = math::sdr::Rgb(*)(math::hdr::Rgb);
+    using FragmentShader = math::sdr::Rgb(*)(math::sdr::Rgb);
 
     StatelessProgram(VertexShader aVertex, FragmentShader aFragment) :
         vertex{std::move(aVertex)},
@@ -150,15 +150,14 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene_base<T_vertex> & aScene,
                     [&aProgram](T_targetBuffer & aTarget,
                         math::Position<2, int> aScreenPosition, 
                         double aFragmentDepth, 
-                        math::hdr::Rgb aColor,
-                        auto ... aExtra)
+                        math::sdr::Rgb aColor)
                     {
                         // Depth test (Z buffer)
                         // Note: Near plane > Far plane, so the test is for superiority.
                         if (aFragmentDepth > aTarget.depthAt(aScreenPosition))
                         {
                             // Fragment Shader
-                            aTarget.color.at(aScreenPosition) = aProgram.fragment(aColor, aExtra...);
+                            aTarget.color.at(aScreenPosition) = aProgram.fragment(aColor);
                             aTarget.depthAt(aScreenPosition) = aFragmentDepth;
                         }
                     });

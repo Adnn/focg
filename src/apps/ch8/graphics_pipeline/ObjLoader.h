@@ -97,7 +97,7 @@ void appendToScene(std::istream & aInputObj, Scene_base<T_vertex> & aScene, cons
                 std::size_t vertexIndex = std::stoul(indices[0]) - 1;
                 triangleVertices[count++] = vertexIndex;
 
-                if constexpr(std::is_same_v<T_vertex, VertexAdvanced>)
+                if constexpr(! std::is_same_v<T_vertex, Vertex>)
                 {
                     // If it is VertexAugmented
                     std::size_t normalIndex = std::stoul(indices[2]) - 1;
