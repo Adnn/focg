@@ -178,8 +178,8 @@ void defaultFragmentCallback(T_raster & aRaster, math::Position<2, int> aScreenP
 }
 
 
-template <class T_vertex, class T_raster>
-void rasterizeIncremental(const Triangle_base<T_vertex> & aTriangle, T_raster & aRaster)
+template <class T_raster>
+void rasterizeIncremental(const Triangle & aTriangle, T_raster & aRaster)
 {
     rasterizeIncremental(aTriangle, aRaster, &defaultFragmentCallback<T_raster>);
 }
@@ -187,8 +187,8 @@ void rasterizeIncremental(const Triangle_base<T_vertex> & aTriangle, T_raster & 
 
 /// \note aRaster is passed in because of legacy API of NaivePipeline,
 /// otherwise it makes more sense that the fragment callback knows the target.
-template <class T_vertex, class T_raster, class F_postRasterization>
-void rasterizeIncremental(const Triangle_base<T_vertex> & aTriangle, 
+template <class T_raster, class F_postRasterization>
+void rasterizeIncremental(const Triangle & aTriangle, 
                           T_raster & aRaster,
                           const F_postRasterization & aFragmentCallback)
 {

@@ -37,12 +37,6 @@ struct Timeline
 };
 
 
-struct VertexAdvanced : public Vertex
-{
-    HVec normal{0., 0., 0., 0.}; // must have defaults, when creating the vertex set in the obj loader
-};
-
-
 struct AnimatedScene
 {
     void update(const Timeline & aTimeline)
@@ -67,7 +61,7 @@ struct AnimatedScene
             * math::trans3d::orthographicProjection(projected);
     }
 
-    std::vector<std::pair<Scene_base<VertexAdvanced>, math::AffineMatrix<4>>> posedScenes;
+    std::vector<std::pair<Scene, math::AffineMatrix<4>>> posedScenes;
 
     math::Position<3> cameraPosition{0., 0., 100.};
     math::Position<3> looksAt{0., 0., 0.};
@@ -78,6 +72,10 @@ struct AnimatedScene
     double farPlaneZ  = -1000.; 
 };
 
+
+struct ShadingProgram 
+{
+};
 
 struct ShadingRenderer
 {
@@ -128,7 +126,7 @@ void renderDemoScene(const filesystem::path & aFolder,
 {
     AnimatedScene animation;
     {
-        focg::Scene_base<VertexAdvanced> cube;
+        focg::Scene cube;
         appendToScene(std::istringstream{focg::gCubeObj}, cube);
 
         const double cubeSize = 100.;

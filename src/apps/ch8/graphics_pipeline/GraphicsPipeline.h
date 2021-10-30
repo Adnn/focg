@@ -75,9 +75,9 @@ private:
 
 public:
     /// Have each object in aScene travers the graphics pipeline, rasterizing to aTarget.
-    template <class T_vertex, class T_targetBuffer, class T_program>
+    template <class T_targetBuffer, class T_program>
     T_targetBuffer & traverse(
-        const Scene_base<T_vertex> & aScene, T_targetBuffer & aTarget, const T_program & aProgram,
+        const Scene & aScene, T_targetBuffer & aTarget, const T_program & aProgram,
         double aNear, double aFar) const;
 
     static constexpr RenderFlag Wireframe = 0b01;
@@ -86,8 +86,8 @@ public:
 };
 
 
-template <class T_vertex, class T_targetBuffer, class T_program>
-T_targetBuffer & GraphicsPipeline::traverse(const Scene_base<T_vertex> & aScene,
+template <class T_targetBuffer, class T_program>
+T_targetBuffer & GraphicsPipeline::traverse(const Scene & aScene,
                                             T_targetBuffer & aTarget,
                                             const T_program & aProgram,
                                             double aNear, double aFar) const
