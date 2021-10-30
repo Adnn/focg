@@ -10,7 +10,6 @@ set(${TARGET_NAME}_HEADERS
     Rasterization.h
     Scene.h
     Shaders.h
-    ShadingRenderer.h
     Triangle.h
 )
 
