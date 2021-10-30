@@ -1,4 +1,4 @@
-set(TARGET_NAME ch8-graphics_pipeline)
+set(TARGET_NAME ch8-01-basic_pipeline)
 
 set(${TARGET_NAME}_HEADERS
     Clipping.h
