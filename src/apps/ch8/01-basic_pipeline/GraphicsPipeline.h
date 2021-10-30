@@ -25,15 +25,8 @@ struct ImageBuffer
     double & depthAt(T_position aPosition)
     { return depth[aPosition.x() + aPosition.y() * color.width()]; }
 
-    void clear()
-    { 
-        color.clear(clearColor);
-        std::fill(depth.begin(), depth.end(), std::numeric_limits<T_depthValue>::lowest());
-    }
-
     arte::Image<T_pixel> color;
     std::vector<T_depthValue> depth;
-    T_pixel clearColor;
 };
 
 
@@ -42,8 +35,7 @@ ImageBuffer<T_pixel, T_depthValue>::ImageBuffer(math::Size<2, int> aResolution, 
     color{aResolution, aDefaultColor},
     // Near plane > Far plane, so the test is for superiority (hence min).
     // Important: for floating point, ::min() is the lowest positive value...
-    depth((std::size_t)aResolution.area(), std::numeric_limits<T_depthValue>::lowest()),
-    clearColor{aDefaultColor}
+    depth((std::size_t)aResolution.area(), std::numeric_limits<T_depthValue>::lowest())
 {}
 
 
@@ -52,7 +44,7 @@ template <class T_vertex, class T_targetBuffer>
 struct StatelessProgram
 {
     using VertexShader = HPos(*)(const T_vertex & aVertex);
-    using FragmentShader = math::sdr::Rgb(*)(math::hdr::Rgb);
+    using FragmentShader = math::sdr::Rgb(*)(math::sdr::Rgb);
 
     StatelessProgram(VertexShader aVertex, FragmentShader aFragment) :
         vertex{std::move(aVertex)},
@@ -75,9 +67,9 @@ private:
 
 public:
     /// Have each object in aScene travers the graphics pipeline, rasterizing to aTarget.
-    template <class T_vertex, class T_targetBuffer, class T_program>
+    template <class T_targetBuffer, class T_program>
     T_targetBuffer & traverse(
-        const Scene_base<T_vertex> & aScene, T_targetBuffer & aTarget, const T_program & aProgram,
+        const Scene & aScene, T_targetBuffer & aTarget, const T_program & aProgram,
         double aNear, double aFar) const;
 
     static constexpr RenderFlag Wireframe = 0b01;
@@ -86,8 +78,8 @@ public:
 };
 
 
-template <class T_vertex, class T_targetBuffer, class T_program>
-T_targetBuffer & GraphicsPipeline::traverse(const Scene_base<T_vertex> & aScene,
+template <class T_targetBuffer, class T_program>
+T_targetBuffer & GraphicsPipeline::traverse(const Scene & aScene,
                                             T_targetBuffer & aTarget,
                                             const T_program & aProgram,
                                             double aNear, double aFar) const
@@ -150,15 +142,14 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene_base<T_vertex> & aScene,
                     [&aProgram](T_targetBuffer & aTarget,
                         math::Position<2, int> aScreenPosition, 
                         double aFragmentDepth, 
-                        math::hdr::Rgb aColor,
-                        auto ... aExtra)
+                        math::sdr::Rgb aColor)
                     {
                         // Depth test (Z buffer)
                         // Note: Near plane > Far plane, so the test is for superiority.
                         if (aFragmentDepth > aTarget.depthAt(aScreenPosition))
                         {
                             // Fragment Shader
-                            aTarget.color.at(aScreenPosition) = aProgram.fragment(aColor, aExtra...);
+                            aTarget.color.at(aScreenPosition) = aProgram.fragment(aColor);
                             aTarget.depthAt(aScreenPosition) = aFragmentDepth;
                         }
                     });

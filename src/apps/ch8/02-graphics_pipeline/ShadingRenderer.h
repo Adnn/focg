@@ -65,7 +65,7 @@ struct AnimatedScene
                * math::trans3d::orthographicProjection(projected);
     }
 
-    std::vector<std::pair<Scene_base<VertexAdvanced>, math::AffineMatrix<4>>> posedScenes;
+    std::vector<std::pair<Scene<Vertex>, math::AffineMatrix<4>>> posedScenes;
 
     math::Position<3> cameraPosition{0., 0., 100.};
     math::Position<3> looksAt{0., 0., 0.};
@@ -127,7 +127,7 @@ void renderDemoScene(const filesystem::path & aFolder,
 {
     AnimatedScene animation;
     {
-        focg::Scene_base<VertexAdvanced> cube;
+        focg::Scene<Vertex> cube;
         appendToScene(std::istringstream{focg::gCubeObj}, cube, math::hdr::gCyan);
 
         const double cubeSize = 100.;

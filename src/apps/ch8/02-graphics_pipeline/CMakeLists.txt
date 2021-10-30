@@ -1,4 +1,4 @@
-set(TARGET_NAME ch8-graphics_pipeline)
+set(TARGET_NAME ch8-02-graphics_pipeline)
 
 set(${TARGET_NAME}_HEADERS
     Clipping.h
@@ -6,7 +6,6 @@ set(${TARGET_NAME}_HEADERS
     Line.h
     ObjLoader.h
     ObjModels.h
-    NaivePipeline.h
     Rasterization.h
     Scene.h
     Shaders.h

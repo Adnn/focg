@@ -114,81 +114,11 @@ void rasterizeLine(
 // The rasterization only generate a fragment if the pixel center is inside the triangle 
 // (or exactly on its edge).
 
-template <class T_raster>
-void rasterize(const Triangle & aTriangle, T_raster & aRaster)
-{
-    // Use to assign exactly tangent pixels on adjacent triangles (p 168)
-    const HPos offscreenPoint{-1., -1., 0., 1.};
-
-    auto fa = aTriangle.getFa();
-    auto fb = aTriangle.getFb();
-    auto fc = aTriangle.getFc();
-
-    const double falpha = fa(aTriangle.a);
-    const double fbeta  = fb(aTriangle.b);
-    const double fgamma = fc(aTriangle.c);
-
-    // Test for degenerate triangle (zero area), which should not be rasterized.
-    if (falpha == 0. || fbeta == 0. || fgamma == 0.)
-    {
-        return; 
-    }
-
-
-    for (auto y = static_cast<int>(std::nearbyint(aTriangle.ymin()));
-         y <= static_cast<int>(std::nearbyint(aTriangle.ymax()));
-         ++y)
-    {
-        for (auto x = static_cast<int>(std::nearbyint(aTriangle.xmin()));
-             x <= static_cast<int>(std::nearbyint(aTriangle.xmax()));
-             ++x)
-        {
-            double alpha = fa({(double)x, (double)y, 0., 1.}) / falpha;
-            double beta  = fb({(double)x, (double)y, 0., 1.}) / fbeta;
-            double gamma = fc({(double)x, (double)y, 0., 1.}) / fgamma;
-
-            if (alpha >= 0. && beta >= 0. && gamma >= 0.)
-            {
-                if (   alpha > 0 || falpha * fa(offscreenPoint) > 0
-                    && beta  > 0 || fbeta  * fb(offscreenPoint) > 0
-                    && gamma > 0 || fgamma * fc(offscreenPoint) > 0)
-                {
-                    aRaster.at(x, y) = to_sdr(
-                          alpha * aTriangle.a.color
-                        + beta  * aTriangle.b.color
-                        + gamma * aTriangle.c.color);
-                }
-            }
-        }
-    }
-}
-
-
-template <class T_raster>
-void defaultFragmentCallback(T_raster & aRaster, math::Position<2, int> aScreenPosition, double aFragmentDepth, math::hdr::Rgb aColor)
-{
-    if constexpr (std::is_same_v<T_raster, arte::Image<>>)
-    {
-        aRaster.at(aScreenPosition.x(), aScreenPosition.y()) = to_sdr(aColor);
-    }
-    else
-    {
-        aRaster.color.at(aScreenPosition.x(), aScreenPosition.y()) = to_sdr(aColor);
-    }
-}
-
-
-template <class T_vertex, class T_raster>
-void rasterizeIncremental(const Triangle_base<T_vertex> & aTriangle, T_raster & aRaster)
-{
-    rasterizeIncremental(aTriangle, aRaster, &defaultFragmentCallback<T_raster>);
-}
-
 
 /// \note aRaster is passed in because of legacy API of NaivePipeline,
 /// otherwise it makes more sense that the fragment callback knows the target.
 template <class T_vertex, class T_raster, class F_postRasterization>
-void rasterizeIncremental(const Triangle_base<T_vertex> & aTriangle, 
+void rasterizeIncremental(const Triangle<T_vertex> & aTriangle, 
                           T_raster & aRaster,
                           const F_postRasterization & aFragmentCallback)
 {
@@ -267,23 +197,16 @@ void rasterizeIncremental(const Triangle_base<T_vertex> & aTriangle,
                                + beta  * aTriangle.b.color
                                + gamma * aTriangle.c.color;
 
-                    if constexpr(std::is_same_v<T_vertex, Vertex>)
-                    {
-                        aFragmentCallback(aRaster, {x, y}, z, color);
-                    }
-                    else if constexpr(std::is_same_v<T_vertex, VertexAdvanced>)
-                    {
-                        auto normal = alpha * aTriangle.a.normal
-                                    + beta  * aTriangle.b.normal
-                                    + gamma * aTriangle.c.normal;
-                        normal.normalize();
+                    auto normal = alpha * aTriangle.a.normal
+                                + beta  * aTriangle.b.normal
+                                + gamma * aTriangle.c.normal;
+                    normal.normalize();
 
-                        auto fragmentPos_c = alpha * aTriangle.a.fragmentPos_c
-                                           + beta  * aTriangle.b.fragmentPos_c.as<math::Vec>()
-                                           + gamma * aTriangle.c.fragmentPos_c.as<math::Vec>();
+                    auto fragmentPos_c = alpha * aTriangle.a.fragmentPos_c
+                                       + beta  * aTriangle.b.fragmentPos_c.as<math::Vec>()
+                                       + gamma * aTriangle.c.fragmentPos_c.as<math::Vec>();
 
-                        aFragmentCallback(aRaster, {x, y}, z, color, normal, fragmentPos_c);
-                    }
+                    aFragmentCallback(aRaster, {x, y}, z, color, normal, fragmentPos_c);
                 }
             }
             numerators += xIncrements;
@@ -292,111 +215,6 @@ void rasterizeIncremental(const Triangle_base<T_vertex> & aTriangle,
         previousNumerators = numerators;
     }
 }
-
-
-// Use the math::Barycentric facility, which prevents to implement an incremental version
-// No tangent edge assignment implemented.
-// No test for degenerate triangles implemented
-template <class T_raster>
-void rasterizeBis(const Triangle & aTriangle, T_raster & aRaster)
-{
-    ad::math::Barycentric<double> barycentric{ 
-        {aTriangle.a.pos.x(), aTriangle.a.pos.y()},
-        {aTriangle.b.pos.x(), aTriangle.b.pos.y()},
-        {aTriangle.c.pos.x(), aTriangle.c.pos.y()}
-    };
-
-    for (auto y = static_cast<int>(std::nearbyint(aTriangle.ymin()));
-         y <= static_cast<int>(std::nearbyint(aTriangle.ymax()));
-         ++y)
-    {
-        for (auto x = static_cast<int>(std::nearbyint(aTriangle.xmin()));
-             x <= static_cast<int>(std::nearbyint(aTriangle.xmax()));
-             ++x)
-        {
-            // Shortcut version leads to artifacts on the "alpha edge".
-            //auto [alpha, beta, gamma] = barycentric.getCoordinatesShortcut({(double)x, (double)y});
-            auto [alpha, beta, gamma] = barycentric.getCoordinates({(double)x, (double)y});
-            if (alpha >= 0. && beta >= 0. && gamma >= 0.)
-            {
-                aRaster.at(x, y) = to_sdr(
-                      alpha * aTriangle.a.color
-                    + beta  * aTriangle.b.color
-                    + gamma * aTriangle.c.color);
-            }
-        }
-    }
-}
-
-
-
-
-#if 0 // outline of the incremental optimization proposed in the book
-template <class T_raster>
-void drawLine(
-    Line aLine,
-    T_raster & aRaster,
-    const math::sdr::Rgb aColor = math::sdr::gWhite)
-{
-    // FoCG 3rd p 165
-
-    Pos & a = aLine.pointA;
-    Pos & b = aLine.pointB;
-
-    auto f = aLine.getImplicitEquation();
-
-    if (a.x() > b.x())
-    {
-        std::swap(a, b);
-    }
-
-    double xb_xa = b.x() - a.x();
-    double yb_ya = b.y() - a.y();
-    double xa_xb = a.x() - b.x();
-    double ya_yb = a.y() - b.y();
-
-    double m = yb_ya / xb_xa;
-    // The four cases depending on the slope
-    if (m <= -1)
-    {
-        int x = std::nearbyint(a.x());
-        double d = f(a + math::Vec<2>{0.5, 1.});
-
-        for (int y = std::nearbyint(a.y()); y >= std::nearbyint(b.y()); --y)
-        {
-            aRaster.at(x, y) = aColor;
-            if (d < 0)
-            {
-                x += 1;
-                d += -xb_xa + ya_yb;
-            }
-            else
-            {
-                d += -xb_xa;
-            }
-        }
-    }
-    else if (m <= 1)
-    {
-        int y = std::nearbyint(a.y());
-        double d = f(a + math::Vec<2>{1., 0.5});
-
-        for (int x = std::nearbyint(a.x()); x <= std::nearbyint(b.x()); ++x)
-        {
-            aRaster.at(x, y) = aColor;
-            if (d < 0)
-            {
-                y += 1;
-                d += xb_xa + ya_yb;
-            }
-            else
-            {
-                d += ya_yb;
-            }
-        }
-    }
-}
-#endif
 
 
 } // namespace focg
