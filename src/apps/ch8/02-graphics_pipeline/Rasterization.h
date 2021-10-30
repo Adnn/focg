@@ -193,20 +193,26 @@ void rasterizeIncremental(const Triangle<T_vertex> & aTriangle,
                            + beta  * aTriangle.b.pos.z()
                            + gamma * aTriangle.c.pos.z();
 
-                    auto color = alpha * aTriangle.a.color
-                               + beta  * aTriangle.b.color
-                               + gamma * aTriangle.c.color;
+                    typename T_vertex::FragmentInterpolated interpolated;
+                    // TODO write some generic interpolation code
+                    interpolated.color = alpha * aTriangle.a.frag.color
+                        + beta  * aTriangle.b.frag.color
+                        + gamma * aTriangle.c.frag.color;
 
-                    auto normal = alpha * aTriangle.a.normal
-                                + beta  * aTriangle.b.normal
-                                + gamma * aTriangle.c.normal;
-                    normal.normalize();
+                    interpolated.normal_c = alpha * aTriangle.a.frag.normal_c
+                        + beta  * aTriangle.b.frag.normal_c
+                        + gamma * aTriangle.c.frag.normal_c;
+                    interpolated.normal_c.normalize();
 
-                    auto fragmentPos_c = alpha * aTriangle.a.fragmentPos_c
-                                       + beta  * aTriangle.b.fragmentPos_c.as<math::Vec>()
-                                       + gamma * aTriangle.c.fragmentPos_c.as<math::Vec>();
+                    interpolated.position_c = alpha * aTriangle.a.frag.position_c
+                        + beta  * aTriangle.b.frag.position_c.as<math::Vec>()
+                        + gamma * aTriangle.c.frag.position_c.as<math::Vec>();
 
-                    aFragmentCallback(aRaster, {x, y}, z, color, normal, fragmentPos_c);
+                    interpolated.uv = alpha * aTriangle.a.frag.uv
+                        + beta  * aTriangle.b.frag.uv.as<math::Vec>()
+                        + gamma * aTriangle.c.frag.uv.as<math::Vec>();
+
+                    aFragmentCallback(aRaster, {x, y}, z, interpolated);
                 }
             }
             numerators += xIncrements;

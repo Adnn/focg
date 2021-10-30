@@ -40,6 +40,7 @@ void appendToScene(std::istream & aInputObj, Scene<T_vertex> & aScene, const T_c
 {
     std::vector<T_vertex> vertices;
     std::vector<HVec> normals;
+    std::vector<math::Position<2>> textureCoords;
     for (std::string line; std::getline(aInputObj, line);)
     {
         std::istringstream input{line};
@@ -81,7 +82,11 @@ void appendToScene(std::istream & aInputObj, Scene<T_vertex> & aScene, const T_c
         }
         // Texture coordinate
         else if (type == "vt")
-        {}
+        {
+            double u, v;
+            input >> u; input >> v;
+            textureCoords.push_back({u, v});
+        }
         else if (type == "f")
         {
             std::array<std::size_t, 3> triangleVertices;
@@ -99,6 +104,11 @@ void appendToScene(std::istream & aInputObj, Scene<T_vertex> & aScene, const T_c
                 std::size_t normalIndex = std::stoul(indices[2]) - 1;
                 // Dirty: patch the vertex in the initial list each time with the normal.
                 vertices.at(vertexIndex).normal = normals.at(normalIndex);
+
+                // Texture Coordinates
+                std::size_t textureCoordIndex = std::stoul(indices[1]) - 1;
+                // Dirty: patch the vertex in the initial list each time with the UV.
+                vertices.at(vertexIndex).uv = textureCoords.at(textureCoordIndex);
             }
 
             if (count != 3)

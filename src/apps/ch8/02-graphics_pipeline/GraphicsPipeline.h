@@ -47,27 +47,6 @@ ImageBuffer<T_pixel, T_depthValue>::ImageBuffer(math::Size<2, int> aResolution, 
 {}
 
 
-/// \brief Models the programmable part of the pipeline.
-template <class T_vertex, class T_targetBuffer>
-struct StatelessProgram
-{
-    using VertexShader = HPos(*)(const T_vertex & aVertex);
-    using FragmentShader = math::sdr::Rgb(*)(math::hdr::Rgb);
-
-    StatelessProgram(VertexShader aVertex, FragmentShader aFragment) :
-        vertex{std::move(aVertex)},
-        fragment{std::move(aFragment)}
-    {}
-
-    StatelessProgram(FragmentShader aFragment) :
-        fragment{std::move(aFragment)}
-    {}
-
-    VertexShader vertex = [](const T_vertex & aVertex){return aVertex.pos;};
-    FragmentShader fragment;
-};
-
-
 struct GraphicsPipeline
 {
 private:
@@ -125,9 +104,10 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene<T_vertex> & aScene,
     {
         auto triangleVertexStage = triangleScene;
         // Vertex shader
-        triangleVertexStage.a.pos = aProgram.vertex(triangleVertexStage.a);
-        triangleVertexStage.b.pos = aProgram.vertex(triangleVertexStage.b);
-        triangleVertexStage.c.pos = aProgram.vertex(triangleVertexStage.c);
+        // TODO encapsulate this logic
+        triangleVertexStage.a.pos = aProgram.vertex(triangleVertexStage.a, triangleVertexStage.a.frag);
+        triangleVertexStage.b.pos = aProgram.vertex(triangleVertexStage.b, triangleVertexStage.b.frag);
+        triangleVertexStage.c.pos = aProgram.vertex(triangleVertexStage.c, triangleVertexStage.c.frag);
 
         // Now, the vertices coordinates are expressed in clip space
 
@@ -150,15 +130,14 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene<T_vertex> & aScene,
                     [&aProgram](T_targetBuffer & aTarget,
                         math::Position<2, int> aScreenPosition, 
                         double aFragmentDepth, 
-                        math::hdr::Rgb aColor,
-                        auto ... aExtra)
+                        const typename T_vertex::FragmentInterpolated & aIn)
                     {
                         // Depth test (Z buffer)
                         // Note: Near plane > Far plane, so the test is for superiority.
                         if (aFragmentDepth > aTarget.depthAt(aScreenPosition))
                         {
                             // Fragment Shader
-                            aTarget.color.at(aScreenPosition) = aProgram.fragment(aColor, aExtra...);
+                            aTarget.color.at(aScreenPosition) = aProgram.fragment(aIn);
                             aTarget.depthAt(aScreenPosition) = aFragmentDepth;
                         }
                     });

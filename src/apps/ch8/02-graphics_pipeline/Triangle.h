@@ -15,6 +15,7 @@ namespace focg {
 
 using HPos = math::Position<4>;
 using HVec = math::Vec<4>;
+using TextureCoordinates = math::Position<2>;
 using Rectangle = math::Rectangle<double>;
 
 
@@ -32,9 +33,20 @@ struct Vertex
 
     HPos pos;
     math::hdr::Rgb color;
-
     HVec normal{0., 0., 0., 0.}; // must have defaults, when creating the vertex set in the obj loader
-    HPos fragmentPos_c{0., 0., 0., 1.};
+    TextureCoordinates uv{0., 0.}; // must have defaults, when creating the vertex set in the obj loader
+
+    // TODO Ideally, this should not be hosted within the vertex
+    // Then, it does not neet to be default constructible
+    struct FragmentInterpolated
+    {
+        math::hdr::Rgb color = math::hdr::gRed;
+        HPos position_c{0., 0., 0., 1.};
+        HVec normal_c{0., 0., 0., 0.};
+        TextureCoordinates uv{0., 0.};
+    };
+
+    FragmentInterpolated frag;
 };
 
 
