@@ -189,28 +189,45 @@ void rasterizeIncremental(const Triangle<T_vertex> & aTriangle,
                     && beta  > 0 || denominators.y() * fb(offscreenPoint) > 0
                     && gamma > 0 || denominators.z() * fc(offscreenPoint) > 0)
                 {
+                    // Perspective correct interpolation.
+                    // see: https://stackoverflow.com/a/24460895/1027706
+                    // see: https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation/perspective-correct-interpolation-vertex-attributes
+
+                    // Linearly interpolate depth and depth inverse in window space
+                    double depthInverse =
+                        alpha * aTriangle.a.depthInverse
+                        + beta  * aTriangle.b.depthInverse
+                        + gamma * aTriangle.c.depthInverse;
+                    // TODO Understand why the depth is interpolated without perspective correction?
                     auto z = alpha * aTriangle.a.pos.z()
                            + beta  * aTriangle.b.pos.z()
                            + gamma * aTriangle.c.pos.z();
 
+                    math::Vec<3> perspectiveCoeff = math::Vec<3>{
+                        alpha * aTriangle.a.depthInverse,
+                        beta  * aTriangle.b.depthInverse,
+                        gamma * aTriangle.c.depthInverse
+                    } / depthInverse;
+
+                    // Perspective corrected interpolation of varying attributes
                     typename T_vertex::FragmentInterpolated interpolated;
                     // TODO write some generic interpolation code
-                    interpolated.color = alpha * aTriangle.a.frag.color
-                        + beta  * aTriangle.b.frag.color
-                        + gamma * aTriangle.c.frag.color;
+                    interpolated.color = perspectiveCoeff[0] * aTriangle.a.frag.color
+                        + perspectiveCoeff[1] * aTriangle.b.frag.color
+                        + perspectiveCoeff[2] * aTriangle.c.frag.color;
 
-                    interpolated.normal_c = alpha * aTriangle.a.frag.normal_c
-                        + beta  * aTriangle.b.frag.normal_c
-                        + gamma * aTriangle.c.frag.normal_c;
+                    interpolated.normal_c = perspectiveCoeff[0] * aTriangle.a.frag.normal_c
+                        + perspectiveCoeff[1]  * aTriangle.b.frag.normal_c
+                        + perspectiveCoeff[2] * aTriangle.c.frag.normal_c;
                     interpolated.normal_c.normalize();
 
-                    interpolated.position_c = alpha * aTriangle.a.frag.position_c
-                        + beta  * aTriangle.b.frag.position_c.as<math::Vec>()
-                        + gamma * aTriangle.c.frag.position_c.as<math::Vec>();
+                    interpolated.position_c = perspectiveCoeff[0] * aTriangle.a.frag.position_c
+                        + perspectiveCoeff[1]  * aTriangle.b.frag.position_c.as<math::Vec>()
+                        + perspectiveCoeff[2] * aTriangle.c.frag.position_c.as<math::Vec>();
 
-                    interpolated.uv = alpha * aTriangle.a.frag.uv
-                        + beta  * aTriangle.b.frag.uv.as<math::Vec>()
-                        + gamma * aTriangle.c.frag.uv.as<math::Vec>();
+                    interpolated.uv = perspectiveCoeff[0] * aTriangle.a.frag.uv
+                        + perspectiveCoeff[1] * aTriangle.b.frag.uv.as<math::Vec>()
+                        + perspectiveCoeff[2] * aTriangle.c.frag.uv.as<math::Vec>();
 
                     aFragmentCallback(aRaster, {x, y}, z, interpolated);
                 }

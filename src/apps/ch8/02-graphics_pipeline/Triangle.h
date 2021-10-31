@@ -31,8 +31,22 @@ struct Vertex
         return pos;
     }
 
+    void perspectiveDivide()
+    {
+        // This depth inverse is stored to implement perspective correct interpolation.
+        // See: https://stackoverflow.com/a/24460895/1027706
+        pos.x() /= pos.w();
+        pos.y() /= pos.w();
+        pos.z() /= pos.w();
+        // Important: this breaks the later viewports transform, just store it separately atm
+        //pos.w() = 1. / pos.w();
+        depthInverse = 1. / pos.w();
+        pos.w() = 1.;
+    }
+
     HPos pos;
     math::hdr::Rgb color;
+    double depthInverse = 0.;
     HVec normal{0., 0., 0., 0.}; // must have defaults, when creating the vertex set in the obj loader
     TextureCoordinates uv{0., 0.}; // must have defaults, when creating the vertex set in the obj loader
 
@@ -132,9 +146,9 @@ struct Triangle
 
     Triangle & perspectiveDivide()
     {
-        a.pos /= a.pos.w();
-        b.pos /= b.pos.w();
-        c.pos /= c.pos.w();
+        a.perspectiveDivide();
+        b.perspectiveDivide();
+        c.perspectiveDivide();
         return *this;
     }
 };
