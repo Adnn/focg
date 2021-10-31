@@ -229,7 +229,7 @@ void rasterizeIncremental(const Triangle<T_vertex> & aTriangle,
                         + perspectiveCoeff[1] * aTriangle.b.frag.uv.as<math::Vec>()
                         + perspectiveCoeff[2] * aTriangle.c.frag.uv.as<math::Vec>();
 
-                    aFragmentCallback(aRaster, {x, y}, z, interpolated);
+                    aFragmentCallback(aRaster, {x, y}, z, depthInverse, interpolated);
                 }
             }
             numerators += xIncrements;

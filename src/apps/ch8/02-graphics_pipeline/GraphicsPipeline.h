@@ -130,14 +130,17 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene<T_vertex> & aScene,
                     [&aProgram](T_targetBuffer & aTarget,
                         math::Position<2, int> aScreenPosition, 
                         double aFragmentDepth, 
+                        double aFragmentInverseDepth, 
                         const typename T_vertex::FragmentInterpolated & aIn)
                     {
                         // Depth test (Z buffer)
                         // Note: Near plane > Far plane, so the test is for superiority.
                         if (aFragmentDepth > aTarget.depthAt(aScreenPosition))
                         {
+                            math::Position<4> fragmentCoordinates{
+                                (double)aScreenPosition.x(), (double)aScreenPosition.y(), aFragmentDepth, aFragmentInverseDepth};
                             // Fragment Shader
-                            aTarget.color.at(aScreenPosition) = aProgram.fragment(aIn);
+                            aTarget.color.at(aScreenPosition) = aProgram.fragment(fragmentCoordinates, aIn);
                             aTarget.depthAt(aScreenPosition) = aFragmentDepth;
                         }
                     });

@@ -26,7 +26,7 @@ struct TransformAndLighting
         return aVertex.pos * (localToCamera * projection);
     }
 
-    math::sdr::Rgb fragmentImpl(const Vertex::FragmentInterpolated & aIn)
+    math::sdr::Rgb fragmentImpl(const math::Position<4> & aFragCoord, const Vertex::FragmentInterpolated & aIn)
     {
         constexpr math::Position<4> cameraPos_c{0., 0., 1., 1.};
         math::Vec<4> viewDirection = (cameraPos_c - aIn.position_c).normalize();
@@ -35,7 +35,7 @@ struct TransformAndLighting
 
         // Texturing
         double checkerFactor = 1.;
-        constexpr int gCheckers = 40; // 10 by faces on the circumference
+        constexpr int gCheckers = 40; // 10 by face, over the circumference (4 faces)
         if ((int)(std::floor(aIn.uv.x() * gCheckers) + std::floor(aIn.uv.y() * gCheckers)) % 2 == 0)
         {
             checkerFactor = 0.3; 
@@ -54,16 +54,16 @@ struct TransformAndLighting
     // Uniforms
     math::AffineMatrix<4> localToCamera{math::AffineMatrix<4>::Identity()};
     math::Matrix<4, 4> projection{math::Matrix<4, 4>::Identity()};
-    math::Position<4> lightPosition_c{0., 50., 100., 1.}; 
-    math::hdr::Rgb lightDiffuseColor = math::hdr::gWhite  * 0.4;
-    math::hdr::Rgb lightSpecularColor= math::hdr::gWhite * 0.3;
-    math::hdr::Rgb lightAmbiantColor = math::hdr::gCyan * 0.2;
-    double phongExponent = 15;
+    math::Position<4> lightPosition_c{0., 0., 100., 1.}; 
+    math::hdr::Rgb lightDiffuseColor = math::hdr::gWhite  * 0.3;
+    math::hdr::Rgb lightSpecularColor= math::hdr::gWhite * 0.5;
+    math::hdr::Rgb lightAmbiantColor = math::hdr::gCyan * 0.25;
+    double phongExponent = 14;
 
     std::function<HPos(focg::Vertex &, Vertex::FragmentInterpolated &)> vertex = 
         std::bind(&TransformAndLighting::vertexImpl, this, _1, _2);
-    std::function<math::sdr::Rgb(const Vertex::FragmentInterpolated &)>fragment =
-        std::bind(&TransformAndLighting::fragmentImpl, this, _1);
+    std::function<math::sdr::Rgb(const math::Position<4> &, const Vertex::FragmentInterpolated &)>fragment =
+        std::bind(&TransformAndLighting::fragmentImpl, this, _1, _2);
 };
 
 
