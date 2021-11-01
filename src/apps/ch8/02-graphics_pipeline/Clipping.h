@@ -23,27 +23,20 @@ using HVec = math::Vec<4>;
 
 struct ViewVolume;
 using Evaluator = double(*)(HPos, const ViewVolume &);
+using Solver = double(*)(HPos, HPos);
 
 
 struct ViewVolume
 {
+    // Clipping in homogenous space
+    // see: https://fabiensanglard.net/polygon_codec/
+    // Note: For the equation of the solver in clipping space,
+    // see: https://fabiensanglard.net/polygon_codec/clippingdocument/p245-blinn.pdf (CLIPPING USING HOMOGENEOUS COORDINATES, Blinn)
+    // see: https://fabiensanglard.net/polygon_codec/clippingdocument/Clipping.pdf (Clipping, Kenneth I. Joy)
     struct Plane
     {
-        Plane(Evaluator aEvaluator, HVec aNormal, HPos aPointInPlane) :
-            f{aEvaluator},
-            n{std::move(aNormal)},
-            d{-(aNormal.as<math::Position>().dot(aPointInPlane))}
-        {}
-
-        double solveForT(HPos a, HPos b) const
-        {
-            return (n.as<math::Position>().dot(a) + d) 
-                   / n.dot(a - b);
-        }
-
         Evaluator f;         
-        HVec n;
-        double d;
+        Solver solver;
     };
 
     ViewVolume(math::Box<double> aBox) :
@@ -57,38 +50,38 @@ struct ViewVolume
             Plane{ // Left
                 [](HPos aPos, const ViewVolume & aVolume) -> double
                 { return -aPos.x() + aVolume.l * aPos.w(); },
-                HVec{-1., 0., 0., 0.},
-                math::homogeneous::makePosition(aBox.bottomLeftFront()),
+                [](HPos a, HPos b) -> double
+                { return (a.w() + a.x()) / ( (a.w() + a.x()) - (b.w() + b.x())); },
             },
             Plane{ // Right
                 [](HPos aPos, const ViewVolume & aVolume) -> double
                 { return aPos.x() - aVolume.r * aPos.w(); },
-                HVec{1., 0., 0., 0.},
-                math::homogeneous::makePosition(aBox.topRightBack()),
+                [](HPos a, HPos b) -> double
+                { return (a.w() - a.x()) / ( (a.w() - a.x()) - (b.w() - b.x())); },
             },
             Plane{ // Bottom
                 [](HPos aPos, const ViewVolume & aVolume) -> double
                 { return -aPos.y() + aVolume.b * aPos.w(); },
-                HVec{0., 1., 0., 0.},
-                math::homogeneous::makePosition(aBox.bottomLeftFront()),
+                [](HPos a, HPos b) -> double
+                { return (a.w() + a.y()) / ( (a.w() + a.y()) - (b.w() + b.y())); },
             },
             Plane{ // Top
                 [](HPos aPos, const ViewVolume & aVolume) -> double
                 { return aPos.y() - aVolume.t * aPos.w(); },
-                HVec{0., -1., 0., 0.},
-                math::homogeneous::makePosition(aBox.topRightBack()),
+                [](HPos a, HPos b) -> double
+                { return (a.w() - a.y()) / ( (a.w() - a.y()) - (b.w() - b.y())); },
             },
             Plane{ // Front
                 [](HPos aPos, const ViewVolume & aVolume) -> double
                 { return aPos.z() - aVolume.n * aPos.w(); },
-                HVec{0., 0., -1., 0.},
-                math::homogeneous::makePosition(aBox.bottomLeftFront()),
+                [](HPos a, HPos b) -> double
+                { return (a.w() - a.z()) / ( (a.w() - a.z()) - (b.w() - b.z())); },
             },
             Plane{ // Back
                 [](HPos aPos, const ViewVolume & aVolume) -> double
                 { return -aPos.z() + aVolume.f * aPos.w(); },
-                HVec{0., 0., 1., 0.},
-                math::homogeneous::makePosition(aBox.topRightBack()),
+                [](HPos a, HPos b) -> double
+                { return (a.w() + a.z()) / ( (a.w() + a.z()) - (b.w() + b.z())); },
             },
         }
     {}
@@ -100,7 +93,7 @@ struct ViewVolume
 
     double solveForT(std::size_t aPlaneId, HPos a, HPos b) const
     {
-        return planes[aPlaneId].solveForT(a, b);
+        return planes[aPlaneId].solver(a, b);
     }
 
     static constexpr std::size_t gPlanesCount = 6;
@@ -216,29 +209,19 @@ inline void clip_impl(const Triangle<T_vertex> & aTriangle,
                      (fc <= 0. && fa > 0. && fb > 0.) || (fc > 0. && fa <= 0. && fb <= 0.) )
             );
 
-            // TODO proper clipping in homogenous space
-            // see: https://fabiensanglard.net/polygon_codec/
-            // see: https://fabiensanglard.net/polygon_codec/clippingdocument/p245-blinn.pdf (CLIPPING USING HOMOGENEOUS COORDINATES, Blinn)
-            // see: https://fabiensanglard.net/polygon_codec/clippingdocument/Clipping.pdf (Clipping, Kenneth I. Joy)
-
-            // NOTE: It is not possible to naively solve the intersection in homogeneous (clipping) space.
-            // As a simple workaround, do the perspective division now.
-            HPos adiv = a.pos / a.pos.w();
-            HPos bdiv = b.pos / b.pos.w();
-            HPos cdiv = c.pos / c.pos.w();
-
-            double t_ac = aVolume.solveForT(planeId, adiv, cdiv);
-            double t_bc = aVolume.solveForT(planeId, bdiv, cdiv);
+            double t_ac = aVolume.solveForT(planeId, a, c);
+            double t_bc = aVolume.solveForT(planeId, b, c);
 
             // NOTE: The solution must strictly be on the line segment.
             assert( 0.0 <= t_ac && t_ac <= 1.0 && 0.0 <= t_bc && t_bc <= 1.0 );
 
-            // NOTE: Interpolating homogenenous (clipping) positions does not work either.
-            // Interpolate the projected (w==1) position above. This probably loses information from w.
+            // Define intersection position
+            T_vertex vertexAC{a.pos + t_ac * (c.pos - a.pos)};
+            T_vertex vertexBC{b.pos + t_bc * (c.pos - b.pos)};
 
-            // Define intersection position, and interpolate colors
-            T_vertex vertexAC{adiv + t_ac * (cdiv - adiv), math::lerp(a.color, c.color, t_ac)};
-            T_vertex vertexBC{bdiv + t_bc * (cdiv - bdiv), math::lerp(b.color, c.color, t_bc)};
+            // Interpolate fragment varying attributes
+            vertexAC.frag = interpolateLinear({ {(1 - t_ac), a.frag}, {t_ac, c.frag} });
+            vertexBC.frag = interpolateLinear({ {(1 - t_bc), b.frag}, {t_bc, c.frag} });
 
             // NOTE evaluation == 0 is also considering the point on the in side.
             if (fc <= 0) // c is on the *in* side of the plane, spawn a single triangle

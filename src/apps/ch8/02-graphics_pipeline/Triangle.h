@@ -9,6 +9,8 @@
 
 #include <string>
 
+#include <cassert>
+
 
 namespace ad {
 namespace focg {
@@ -45,7 +47,7 @@ struct Vertex
     }
 
     HPos pos;
-    math::hdr::Rgb color;
+    math::hdr::Rgb color = math::hdr::gRed;
     double depthInverse = 0.;
     HVec normal{0., 0., 0., 0.}; // must have defaults, when creating the vertex set in the obj loader
     TextureCoordinates uv{0., 0.}; // must have defaults, when creating the vertex set in the obj loader
@@ -62,6 +64,46 @@ struct Vertex
 
     FragmentInterpolated frag;
 };
+
+
+template <class T_value>
+struct Interpolant
+{
+    double weight;
+    T_value value;
+};
+
+
+template <class T_value, class T_accessed = T_value>
+T_accessed interpolateLinear(std::initializer_list<Interpolant<T_value>> aInterpolants, 
+                             const T_accessed &(* aAccessor)(const T_value &) = [](const T_value & aValue) -> const T_accessed &{return aValue;})
+{
+    assert(aInterpolants.size() > 0);
+    T_accessed accum = aInterpolants.begin()->weight * aAccessor(aInterpolants.begin()->value);
+    for (auto it = aInterpolants.begin() + 1; it != aInterpolants.end(); ++it)
+    {
+        if constexpr(math::is_position_v<T_accessed>) 
+        {
+            accum += it->weight * aAccessor(it->value).as<math::Vec>(); 
+        }
+        else
+        {
+            accum += it->weight * aAccessor(it->value); 
+        }
+    }
+    return accum;
+}
+
+
+Vertex::FragmentInterpolated interpolateLinear(std::initializer_list<Interpolant<Vertex::FragmentInterpolated>> aInterpolants)
+{
+    return {
+        interpolateLinear<Vertex::FragmentInterpolated, math::hdr::Rgb>(aInterpolants, [](const Vertex::FragmentInterpolated & frag) -> const math::hdr::Rgb &{return frag.color;}),
+        interpolateLinear<Vertex::FragmentInterpolated, HPos>(aInterpolants, [](const Vertex::FragmentInterpolated & frag) -> const HPos &{return frag.position_c;}),
+        interpolateLinear<Vertex::FragmentInterpolated, HVec>(aInterpolants, [](const Vertex::FragmentInterpolated & frag) -> const HVec &{return frag.normal_c;}),
+        interpolateLinear<Vertex::FragmentInterpolated, TextureCoordinates>(aInterpolants, [](const Vertex::FragmentInterpolated & frag) -> const TextureCoordinates & {return frag.uv;}),
+    };
+}
 
 
 template <class T_vertex>

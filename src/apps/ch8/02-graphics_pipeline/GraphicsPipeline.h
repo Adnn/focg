@@ -145,6 +145,7 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene<T_vertex> & aScene,
                         }
                     });
             }
+            // TODO Implement depth test (and shaders?) for line rasterization.
             if ((renderMode & Wireframe).any())
             {
                 rasterizeLine(triangle.getLineC(), aTarget.color);

@@ -68,7 +68,7 @@ struct AnimatedScene
     std::vector<std::pair<Scene<Vertex>, math::AffineMatrix<4>>> posedScenes;
 
     math::Position<3> cameraPosition{0., 0., 100.};
-    math::Position<3> looksAt{0., 0., 0.};
+    math::Position<3> looksAt{50., 0., 0.};
 
     double shownHeight = 100;
 
