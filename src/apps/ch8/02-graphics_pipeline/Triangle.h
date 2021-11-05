@@ -186,6 +186,21 @@ struct Triangle
         return getLineC().getImplicitEquation();
     }
 
+    math::Vec<3> facetNormal() const
+    {
+        HVec ab{b.pos - a.pos};
+        HVec ac{c.pos - a.pos};
+        return math::Vec<3>{ab.x(), ab.y(), ab.z()}.cross(math::Vec<3>{ac.x(), ac.y(), ac.z()});
+    }
+
+    bool isFacingFront() const
+    {
+        HVec ab{b.pos - a.pos};
+        HVec ac{c.pos - a.pos};
+        // Only the Z component of the cross product
+        return (ab.x() * ac.y() - ab.y() * ac.x()) > 0;
+    }
+
     Triangle & transform(const math::AffineMatrix<4> & aTransformation)
     {
         a.pos *= aTransformation;

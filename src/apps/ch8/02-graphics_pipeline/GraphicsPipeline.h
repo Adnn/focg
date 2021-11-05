@@ -121,6 +121,15 @@ T_targetBuffer & GraphicsPipeline::traverse(const Scene<T_vertex> & aScene,
             // Viewport transform
             triangle.transform(viewportTransform);
 
+            // Now, the vertices coordinates are expressed in window space
+
+            // Backface culling in window space
+            // Note: I was not able to make it work reliably in clip space
+            if ( !triangle.isFacingFront() )
+            {
+                continue;
+            }
+
             // Rasterization of primitives in viewport space
             if ((renderMode & Fill).any())
             {
