@@ -74,15 +74,23 @@ struct Interpolant
 };
 
 
-template <class T_value, class T_accessed = T_value>
-T_accessed interpolateLinear(std::initializer_list<Interpolant<T_value>> aInterpolants, 
-                             const T_accessed &(* aAccessor)(const T_value &) = [](const T_value & aValue) -> const T_accessed &{return aValue;})
+// Note: This syntax with a constrained accessor type is turned out very impractical:
+// Invocation required to specify all template parameters, and the lambda had to specify its return type.
+//template <class T_value, class T_accessed = T_value>
+//T_accessed interpolateLinear(std::initializer_list<Interpolant<T_value>> aInterpolants, 
+//                             const T_accessed &(* aAccessor)(const T_value &) = [](const T_value & aValue) -> const T_accessed &{return aValue;})
+
+// Note: This is almost equivalently constrained, as the return type will only substitute if T_accessor
+// has an operator() taking a const T_value reference.
+template <class T_value, class T_accessor>
+decltype(std::declval<T_accessor &>()(std::declval<const T_value &>())) 
+interpolateLinear(std::initializer_list<Interpolant<T_value>> aInterpolants, T_accessor aAccessor)
 {
     assert(aInterpolants.size() > 0);
-    T_accessed accum = aInterpolants.begin()->weight * aAccessor(aInterpolants.begin()->value);
+    auto accum = aInterpolants.begin()->weight * aAccessor(aInterpolants.begin()->value);
     for (auto it = aInterpolants.begin() + 1; it != aInterpolants.end(); ++it)
     {
-        if constexpr(math::is_position_v<T_accessed>) 
+        if constexpr(math::is_position_v<decltype(accum)>) 
         {
             accum += it->weight * aAccessor(it->value).as<math::Vec>(); 
         }
@@ -98,10 +106,10 @@ T_accessed interpolateLinear(std::initializer_list<Interpolant<T_value>> aInterp
 Vertex::FragmentInterpolated interpolateLinear(std::initializer_list<Interpolant<Vertex::FragmentInterpolated>> aInterpolants)
 {
     return {
-        interpolateLinear<Vertex::FragmentInterpolated, math::hdr::Rgb>(aInterpolants, [](const Vertex::FragmentInterpolated & frag) -> const math::hdr::Rgb &{return frag.color;}),
-        interpolateLinear<Vertex::FragmentInterpolated, HPos>(aInterpolants, [](const Vertex::FragmentInterpolated & frag) -> const HPos &{return frag.position_c;}),
-        interpolateLinear<Vertex::FragmentInterpolated, HVec>(aInterpolants, [](const Vertex::FragmentInterpolated & frag) -> const HVec &{return frag.normal_c;}).normalize(),
-        interpolateLinear<Vertex::FragmentInterpolated, TextureCoordinates>(aInterpolants, [](const Vertex::FragmentInterpolated & frag) -> const TextureCoordinates & {return frag.uv;}),
+        interpolateLinear(aInterpolants, [](const Vertex::FragmentInterpolated & frag){return frag.color;}),
+        interpolateLinear(aInterpolants, [](const Vertex::FragmentInterpolated & frag){return frag.position_c;}),
+        interpolateLinear(aInterpolants, [](const Vertex::FragmentInterpolated & frag){return frag.normal_c;}).normalize(),
+        interpolateLinear(aInterpolants, [](const Vertex::FragmentInterpolated & frag){return frag.uv;}),
     };
 }
 
