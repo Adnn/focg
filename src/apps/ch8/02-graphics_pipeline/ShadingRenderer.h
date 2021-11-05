@@ -68,7 +68,7 @@ struct AnimatedScene
     std::vector<std::pair<Scene<Vertex>, math::AffineMatrix<4>>> posedScenes;
 
     math::Position<3> cameraPosition{0., 0., 100.};
-    math::Position<3> looksAt{50., 0., 0.};
+    math::Position<3> looksAt{0., 0., 0.};
 
     double shownHeight = 100;
 
@@ -121,21 +121,23 @@ void ShadingRenderer::render(AnimatedScene & aAnimation,
 
 
 void renderDemoScene(const filesystem::path & aFolder,
+                     const std::string & aObj = focg::gCubeObj,
+                     double aModelSize = 100,
+                     math::Vec<3> aTranslation = {-0.5, -0.5, -0.5},
                      math::Size<2, int> aResolution = {640, 640},
                      double aFps = 5.,
                      double aDuration = 4)
 {
     AnimatedScene animation;
     {
-        focg::Scene<Vertex> cube;
-        appendToScene(std::istringstream{focg::gCubeObj}, cube, math::hdr::gCyan);
+        focg::Scene<Vertex> scene;
+        appendToScene(std::istringstream{aObj}, scene, math::hdr::gCyan);
 
-        const double cubeSize = 100.;
         math::AffineMatrix<4> modelling = 
-            math::trans3d::translate(math::Vec<3>{-0.5, -0.5, -0.5})
-            * math::trans3d::scale(cubeSize, cubeSize, cubeSize);
+            math::trans3d::translate(aTranslation)
+            * math::trans3d::scale(aModelSize, aModelSize, aModelSize);
 
-        animation.posedScenes.emplace_back(cube, modelling);
+        animation.posedScenes.emplace_back(scene, modelling);
     }
 
     Timeline timeline{1.0 / aFps, (int)(aDuration * aFps)};

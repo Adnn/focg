@@ -6,7 +6,8 @@ namespace focg {
 
 
 const std::string gCubeObj = R"#(
-# cube.ob
+#
+# cube.obj
 #
 
 o cube
@@ -55,6 +56,7 @@ f  1/11/4  6/9/4  2/8/4
 f  2/8/1  6/9/1  8/5/1
 f  2/8/1  8/5/1  4/4/1
 )#";
+
 
 } // namespace focg
 } // namespace ad

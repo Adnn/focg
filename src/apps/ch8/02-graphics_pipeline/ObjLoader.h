@@ -56,6 +56,9 @@ void appendToScene(std::istream & aInputObj, Scene<T_vertex> & aScene, const T_c
         // object name
         else if (type == "o")
         {}
+        // smoothing group (?)
+        else if (type == "s")
+        {}
         // Vertex
         else if (type == "v")
         {
@@ -106,9 +109,13 @@ void appendToScene(std::istream & aInputObj, Scene<T_vertex> & aScene, const T_c
                 vertices.at(vertexIndex).normal = normals.at(normalIndex);
 
                 // Texture Coordinates
-                std::size_t textureCoordIndex = std::stoul(indices[1]) - 1;
-                // Dirty: patch the vertex in the initial list each time with the UV.
-                vertices.at(vertexIndex).uv = textureCoords.at(textureCoordIndex);
+                // Allow for models without texture coordinates (keep the default value)
+                if (indices[1].length() != 0)
+                {
+                    std::size_t textureCoordIndex = std::stoul(indices[1]) - 1;
+                    // Dirty: patch the vertex in the initial list each time with the UV.
+                    vertices.at(vertexIndex).uv = textureCoords.at(textureCoordIndex);
+                }
             }
 
             if (count != 3)

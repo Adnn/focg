@@ -36,7 +36,7 @@ struct TransformAndLighting
         // Texturing
         double checkerFactor = 1.;
         constexpr int gCheckers = 40; // 10 by face, over the circumference (4 faces)
-        if ((int)(std::floor(aIn.uv.x() * gCheckers) + std::floor(aIn.uv.y() * gCheckers)) % 2 == 0)
+        if ((int)(std::floor(aIn.uv.x() * gCheckers) + std::floor(aIn.uv.y() * gCheckers)) % 2 != 0)
         {
             checkerFactor = 0.3; 
         }
