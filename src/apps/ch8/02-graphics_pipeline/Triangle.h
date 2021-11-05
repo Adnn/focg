@@ -100,7 +100,7 @@ Vertex::FragmentInterpolated interpolateLinear(std::initializer_list<Interpolant
     return {
         interpolateLinear<Vertex::FragmentInterpolated, math::hdr::Rgb>(aInterpolants, [](const Vertex::FragmentInterpolated & frag) -> const math::hdr::Rgb &{return frag.color;}),
         interpolateLinear<Vertex::FragmentInterpolated, HPos>(aInterpolants, [](const Vertex::FragmentInterpolated & frag) -> const HPos &{return frag.position_c;}),
-        interpolateLinear<Vertex::FragmentInterpolated, HVec>(aInterpolants, [](const Vertex::FragmentInterpolated & frag) -> const HVec &{return frag.normal_c;}),
+        interpolateLinear<Vertex::FragmentInterpolated, HVec>(aInterpolants, [](const Vertex::FragmentInterpolated & frag) -> const HVec &{return frag.normal_c;}).normalize(),
         interpolateLinear<Vertex::FragmentInterpolated, TextureCoordinates>(aInterpolants, [](const Vertex::FragmentInterpolated & frag) -> const TextureCoordinates & {return frag.uv;}),
     };
 }
