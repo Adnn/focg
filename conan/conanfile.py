@@ -23,8 +23,8 @@ class FocgConan(ConanFile):
     }
 
     requires = (
-        ("graphics/9f165af05e@adnn/develop"),
-        ("math/4086708c05@adnn/develop"),
+        ("graphics/f309c45128@adnn/develop"),
+        ("math/64e6aa9451@adnn/develop"),
     )
 
     build_requires = ("cmake/3.20.4",)

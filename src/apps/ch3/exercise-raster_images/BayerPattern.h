@@ -37,11 +37,11 @@ public:
     {}
 
     template <class T_sourcePixel>
-    Image<math::sdr::Grayscale> filter(const Image<T_sourcePixel> & aSource) const;
+    arte::Image<math::sdr::Grayscale> filter(const arte::Image<T_sourcePixel> & aSource) const;
 
-    Image<math::sdr::Rgb> colorCode(const Image<math::sdr::Grayscale> & aFiltered) const;
+    arte::Image<math::sdr::Rgb> colorCode(const arte::Image<math::sdr::Grayscale> & aFiltered) const;
 
-    Image<math::sdr::Rgb> demosaic(const Image<math::sdr::Grayscale> & aFiltered) const;
+    arte::Image<math::sdr::Rgb> demosaic(const arte::Image<math::sdr::Grayscale> & aFiltered) const;
 
 private:
     std::size_t getChannelIndex(std::size_t aColumn, std::size_t aRow) const;
@@ -49,7 +49,7 @@ private:
     const Sample & getSample(std::size_t aColumn, std::size_t aRow) const;
 
     math::sdr::Rgb reconstructPixel(std::size_t aColumn, std::size_t aRow,
-                                    const Image<math::sdr::Grayscale> & aFiltered) const;
+                                    const arte::Image<math::sdr::Grayscale> & aFiltered) const;
 
     std::vector<LinePattern> mLines;
 };
@@ -60,9 +60,9 @@ private:
 //
 
 template <class T_sourcePixel>
-Image<math::sdr::Grayscale> BayerPattern::filter(const Image<T_sourcePixel> & aSource) const
+arte::Image<math::sdr::Grayscale> BayerPattern::filter(const arte::Image<T_sourcePixel> & aSource) const
 {
-    Image<math::sdr::Grayscale> result{aSource.dimensions(), {0}}; // black image
+    arte::Image<math::sdr::Grayscale> result{aSource.dimensions(), {0}}; // black image
     for(int row = 0; row != aSource.height(); ++row)
     {
         for(int col = 0; col != aSource.width(); ++col)
@@ -75,9 +75,9 @@ Image<math::sdr::Grayscale> BayerPattern::filter(const Image<T_sourcePixel> & aS
 }
 
 
-Image<math::sdr::Rgb> BayerPattern::colorCode(const Image<math::sdr::Grayscale> & aFiltered) const
+arte::Image<math::sdr::Rgb> BayerPattern::colorCode(const arte::Image<math::sdr::Grayscale> & aFiltered) const
 {
-    Image<math::sdr::Rgb> result{aFiltered.dimensions(), math::sdr::gBlack}; // black image
+    arte::Image<math::sdr::Rgb> result{aFiltered.dimensions(), math::sdr::gBlack}; // black image
     for(int row = 0; row != aFiltered.height(); ++row)
     {
         for(int col = 0; col != aFiltered.width(); ++col)
@@ -90,9 +90,9 @@ Image<math::sdr::Rgb> BayerPattern::colorCode(const Image<math::sdr::Grayscale> 
 }
 
 
-Image<math::sdr::Rgb> BayerPattern::demosaic(const Image<math::sdr::Grayscale> & aFiltered) const
+arte::Image<math::sdr::Rgb> BayerPattern::demosaic(const arte::Image<math::sdr::Grayscale> & aFiltered) const
 {
-    Image<math::sdr::Rgb> result{aFiltered.dimensions(), math::sdr::gBlack}; // black image
+    arte::Image<math::sdr::Rgb> result{aFiltered.dimensions(), math::sdr::gBlack}; // black image
     for(int row = 0; row != aFiltered.height(); ++row)
     {
         for(int col = 0; col != aFiltered.width(); ++col)
@@ -118,7 +118,7 @@ inline std::size_t BayerPattern::getChannelIndex(std::size_t aColumn, std::size_
 
 
 math::sdr::Rgb BayerPattern::reconstructPixel(std::size_t aColumn, std::size_t aRow,
-                                              const Image<math::sdr::Grayscale> & aFiltered) const
+                                              const arte::Image<math::sdr::Grayscale> & aFiltered) const
 {
     math::sdr::Rgb result = math::sdr::gBlack;
     const math::Position<2, int> basePos{(int)aColumn, (int)aRow};
