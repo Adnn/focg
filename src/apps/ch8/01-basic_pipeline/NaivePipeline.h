@@ -22,7 +22,7 @@ private:
     using RenderFlag = std::bitset<2>;
 
 public:
-    arte::Image<> traverse(const Scene & aScene, math::Size<2, int> aResolution) const;
+    arte::Image<math::sdr::Rgb> traverse(const Scene & aScene, math::Size<2, int> aResolution) const;
 
     static constexpr RenderFlag Wireframe = 0b01;
     static constexpr RenderFlag Fill = 0b10;
@@ -32,9 +32,9 @@ public:
 };
 
 
-inline arte::Image<> NaivePipeline::traverse(const Scene & aScene, math::Size<2, int> aResolution) const
+inline arte::Image<math::sdr::Rgb> NaivePipeline::traverse(const Scene & aScene, math::Size<2, int> aResolution) const
 {
-    arte::Image<> image{aResolution, math::sdr::gBlack};
+    arte::Image<math::sdr::Rgb> image{aResolution, math::sdr::gBlack};
 
     ViewVolume volume{math::Box<double>{
         // Important 0.5 offset, because the integer coordinate are at pixel centers!

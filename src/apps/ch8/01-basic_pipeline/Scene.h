@@ -19,15 +19,15 @@ namespace focg {
 
 struct Scene
 {
-    arte::Image<> render(math::Size<2, int> aResolution);
+    arte::Image<math::sdr::Rgb> render(math::Size<2, int> aResolution);
 
     std::vector<Line> lines;
     std::vector<Triangle> triangles;
 };
 
-inline ad::arte::Image<> Scene::render(math::Size<2, int> aResolution)
+inline ad::arte::Image<math::sdr::Rgb> Scene::render(math::Size<2, int> aResolution)
 {
-    ad::arte::Image<> image{aResolution, math::sdr::gBlack};
+    ad::arte::Image<math::sdr::Rgb> image{aResolution, math::sdr::gBlack};
 
     for (const auto & line : lines)
     {

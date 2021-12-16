@@ -15,10 +15,10 @@ namespace focg {
 
 
 
-ad::arte::Image<> rayTrace(const Scene & aScene, const View & aView, const int aRecursionLimit = 5)
+ad::arte::Image<math::sdr::Rgb> rayTrace(const Scene & aScene, const View & aView, const int aRecursionLimit = 5)
 {
     math::Size<2, int> resolution = aView.getResolution();
-    ad::arte::Image<> image{resolution, math::sdr::gWhite};
+    ad::arte::Image<math::sdr::Rgb> image{resolution, math::sdr::gWhite};
 
     for (int j = 0; j != resolution.height(); ++j)
     {

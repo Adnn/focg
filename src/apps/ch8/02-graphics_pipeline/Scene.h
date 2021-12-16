@@ -20,7 +20,7 @@ namespace focg {
 template <class T_vertex>
 struct Scene
 {
-    arte::Image<> render(math::Size<2, int> aResolution);
+    arte::Image<math::sdr::Rgb> render(math::Size<2, int> aResolution);
 
     std::vector<Line> lines;
     std::vector<Triangle<T_vertex>> triangles;

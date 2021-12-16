@@ -167,7 +167,7 @@ void rasterize(const Triangle & aTriangle, T_raster & aRaster)
 template <class T_raster>
 void defaultFragmentCallback(T_raster & aRaster, math::Position<2, int> aScreenPosition, double aFragmentDepth, math::sdr::Rgb aColor)
 {
-    if constexpr (std::is_same_v<T_raster, arte::Image<>>)
+    if constexpr (std::is_same_v<T_raster, arte::Image<math::sdr::Rgb>>)
     {
         aRaster.at(aScreenPosition.x(), aScreenPosition.y()) = aColor;
     }

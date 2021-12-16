@@ -6,7 +6,7 @@
 
 #include <math/Box.h>
 #include <math/Homogeneous.h>
-#include <math/Interpolation.h>
+#include <math/Interpolation/Interpolation.h>
 
 #include <optional>
 

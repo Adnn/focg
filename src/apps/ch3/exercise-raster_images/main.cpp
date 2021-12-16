@@ -12,7 +12,7 @@ using namespace ad;
 
 void exercise_1(filesystem::path aImagePath)
 {
-    auto colorImage = arte::Image<>::LoadFile(aImagePath);
+    auto colorImage = arte::Image<math::sdr::Rgb>::LoadFile(aImagePath);
     filesystem::path folder = aImagePath.parent_path();
     filesystem::path stem = aImagePath.stem();
 
