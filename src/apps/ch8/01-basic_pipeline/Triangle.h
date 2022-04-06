@@ -30,7 +30,7 @@ struct Vertex
     }
 
     HPos pos;
-    math::hdr::Rgb color;
+    math::hdr::Rgb_d color;
 };
 
 

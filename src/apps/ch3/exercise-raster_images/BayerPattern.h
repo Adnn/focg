@@ -62,7 +62,7 @@ private:
 template <class T_sourcePixel>
 arte::Image<math::sdr::Grayscale> BayerPattern::filter(const arte::Image<T_sourcePixel> & aSource) const
 {
-    arte::Image<math::sdr::Grayscale> result{aSource.dimensions(), {0}}; // black image
+    arte::Image<math::sdr::Grayscale> result{aSource.dimensions(), math::sdr::Grayscale{0}}; // black image
     for(int row = 0; row != aSource.height(); ++row)
     {
         for(int col = 0; col != aSource.width(); ++col)
@@ -82,7 +82,7 @@ arte::Image<math::sdr::Rgb> BayerPattern::colorCode(const arte::Image<math::sdr:
     {
         for(int col = 0; col != aFiltered.width(); ++col)
         {
-            result.at(col, row).at(getChannelIndex(col, row)) = aFiltered.at(col, row);
+            result.at(col, row).at(getChannelIndex(col, row)) = aFiltered.at(col, row).v();
         }
     }
 
@@ -135,7 +135,7 @@ math::sdr::Rgb BayerPattern::reconstructPixel(std::size_t aColumn, std::size_t a
             if (imageRect.contains(samplePos))
             {
                 ++validSamples;
-                sum += aFiltered.at(samplePos);
+                sum += aFiltered.at(samplePos).v();
             }
         }
 

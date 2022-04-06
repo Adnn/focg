@@ -19,8 +19,8 @@ struct Scene
 
     std::shared_ptr<Surface> geometry;
     std::vector<PointLight> lights;
-    math::hdr::Rgb ambientLight{math::hdr::gWhite * 0.5};
-    math::hdr::Rgb backgroundColor{math::hdr::gWhite * 0.5};
+    math::hdr::Rgb_d ambientLight{math::hdr::gWhite<> * 0.5};
+    math::hdr::Rgb_d backgroundColor{math::hdr::gWhite<> * 0.5};
 };
 
 

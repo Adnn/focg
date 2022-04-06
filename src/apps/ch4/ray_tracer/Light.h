@@ -7,7 +7,7 @@ namespace focg {
 
 struct Light
 {
-    math::hdr::Rgb intensity;
+    math::hdr::Rgb_d intensity;
 };
 
 

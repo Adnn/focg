@@ -28,7 +28,7 @@ struct Image
 class View
 {
 public:
-    View(math::Position<3> & aEyePosition,
+    View(math::Position<3> aEyePosition,
          math::Vec<3> aViewDirection,
          math::Vec<3> aUpDirection,
          Image aImage) :

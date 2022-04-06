@@ -7,6 +7,8 @@
 
 #include <bitset>
 
+#include <math/Transformations.h>
+
 
 namespace ad {
 namespace focg {

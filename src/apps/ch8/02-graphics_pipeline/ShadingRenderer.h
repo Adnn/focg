@@ -131,7 +131,8 @@ void renderDemoScene(const filesystem::path & aFolder,
     AnimatedScene animation;
     {
         focg::Scene<Vertex> scene;
-        appendToScene(std::istringstream{aObj}, scene, math::hdr::gCyan);
+        std::istringstream input{aObj};
+        appendToScene(input, scene, math::hdr::gCyan<>);
 
         math::AffineMatrix<4> modelling = 
             math::trans3d::translate(aTranslation)

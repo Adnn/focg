@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include <istream>
+#include <sstream>
 #include <string>
 
 
@@ -104,9 +105,9 @@ void appendToScene(const std::string & aFilename,
 
 inline void appendToScene(std::istream & aInputObj,
                           Scene & aScene,
-                          math::hdr::Rgb aColor = math::hdr::gWhite)
+                          math::hdr::Rgb_d aColor = math::hdr::gWhite<>)
 {
-    appendToScene(aInputObj, aScene, std::vector<math::hdr::Rgb>{aColor});
+    appendToScene(aInputObj, aScene, std::vector<math::hdr::Rgb_d>{aColor});
 }
 
 

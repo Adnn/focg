@@ -5,6 +5,7 @@
 
 
 #include <math/Color.h>
+#include <math/Rectangle.h>
 #include <math/Vector.h>
 
 

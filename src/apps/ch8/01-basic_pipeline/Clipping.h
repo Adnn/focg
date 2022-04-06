@@ -168,7 +168,7 @@ inline std::optional<Line> clip(Line aLine, const ViewVolume & aVolume)
 //
 template <class T_insertIterator>
 inline void clip_impl(const Triangle & aTriangle,
-                      T_insertIterator & aInserter,     
+                      T_insertIterator && aInserter,     
                       const ViewVolume & aVolume,
                       std::size_t aStartingPlane)
 {

@@ -55,9 +55,9 @@ struct TransformAndLighting
     math::AffineMatrix<4> localToCamera{math::AffineMatrix<4>::Identity()};
     math::Matrix<4, 4> projection{math::Matrix<4, 4>::Identity()};
     math::Position<4> lightPosition_c{0., 0., 100., 1.}; 
-    math::hdr::Rgb lightDiffuseColor = math::hdr::gWhite  * 0.3;
-    math::hdr::Rgb lightSpecularColor= math::hdr::gWhite * 0.5;
-    math::hdr::Rgb lightAmbiantColor = math::hdr::gCyan * 0.25;
+    math::hdr::Rgb_d lightDiffuseColor = math::hdr::gWhite<>  * 0.3;
+    math::hdr::Rgb_d lightSpecularColor= math::hdr::gWhite<> * 0.5;
+    math::hdr::Rgb_d lightAmbiantColor = math::hdr::gCyan<> * 0.25;
     double phongExponent = 14;
 
     std::function<HPos(focg::Vertex &, Vertex::FragmentInterpolated &)> vertex = 

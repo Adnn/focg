@@ -69,9 +69,9 @@ void rgbTriangle(filesystem::path aImagePath, math::Size<2, int> aResolution)
     focg::Scene scene;
     scene.triangles = {
         {/*triangle*/
-            { {300., 300., 0., 1.}, math::hdr::gRed },
-            { {500., 300., 0., 1.}, math::hdr::gGreen },
-            { {400., 500., 0., 1.}, math::hdr::gBlue },
+            { {300., 300., 0., 1.}, math::hdr::gRed<> },
+            { {500., 300., 0., 1.}, math::hdr::gGreen<> },
+            { {400., 500., 0., 1.}, math::hdr::gBlue<> },
         }
     };
 
@@ -105,46 +105,46 @@ focg::Scene triangleClipping()
     scene.triangles = {
         // all windows borders
         {/*triangle*/
-            { {-100., -200., 0., 1.}, math::hdr::gBlack },
-            { { 900.,  200., 0., 1.}, math::hdr::gYellow },
-            { { 400., 1000., 0., 1.}, math::hdr::gCyan },
+            { {-100., -200., 0., 1.}, math::hdr::gBlack<> },
+            { { 900.,  200., 0., 1.}, math::hdr::gYellow<> },
+            { { 400., 1000., 0., 1.}, math::hdr::gCyan<> },
         },
 
         // Left + top
         {
-            { {-100.,  400., 0., 1.}, math::hdr::gBlack },
-            { {   0., 1000., 0., 1.}, math::hdr::gYellow },
-            { { 300.,  500., 0., 1.}, math::hdr::gCyan },
+            { {-100.,  400., 0., 1.}, math::hdr::gBlack<> },
+            { {   0., 1000., 0., 1.}, math::hdr::gYellow<> },
+            { { 300.,  500., 0., 1.}, math::hdr::gCyan<> },
         },
 
         // left edge
         {/*triangle*/
-            { {-100., 300., 0., 1.}, math::hdr::gRed },
-            { { 500., 300., 0., 1.}, math::hdr::gGreen },
-            { { 400., 500., 0., 1.}, math::hdr::gBlue },
+            { {-100., 300., 0., 1.}, math::hdr::gRed<> },
+            { { 500., 300., 0., 1.}, math::hdr::gGreen<> },
+            { { 400., 500., 0., 1.}, math::hdr::gBlue<> },
         },
         // top edge
         {/*triangle*/
-            { {100.,  600., 0., 1.}, math::hdr::gRed },
-            { {500.,  500., 0., 1.}, math::hdr::gGreen },
-            { {400., 1500., 0., 1.}, math::hdr::gBlue },
+            { {100.,  600., 0., 1.}, math::hdr::gRed<> },
+            { {500.,  500., 0., 1.}, math::hdr::gGreen<> },
+            { {400., 1500., 0., 1.}, math::hdr::gBlue<> },
         },
         // right edge
         {/*triangle*/
-            { { 550., 300., 0., 1.}, math::hdr::gRed },
-            { { 900., 300., 0., 1.}, math::hdr::gGreen },
-            { { 450., 500., 0., 1.}, math::hdr::gBlue },
+            { { 550., 300., 0., 1.}, math::hdr::gRed<> },
+            { { 900., 300., 0., 1.}, math::hdr::gGreen<> },
+            { { 450., 500., 0., 1.}, math::hdr::gBlue<> },
         },
         // bottom edge
         {/*triangle*/
-            { {400.,  100., 0., 1.}, math::hdr::gRed },
-            { {600., -100., 0., 1.}, math::hdr::gGreen },
-            { {700.,  100., 0., 1.}, math::hdr::gBlue },
+            { {400.,  100., 0., 1.}, math::hdr::gRed<> },
+            { {600., -100., 0., 1.}, math::hdr::gGreen<> },
+            { {700.,  100., 0., 1.}, math::hdr::gBlue<> },
         },
         {/*triangle*/
-            { {200.,  100., 0., 1.}, math::hdr::gRed },
-            { {100., -100., 0., 1.}, math::hdr::gGreen },
-            { {400., -100., 0., 1.}, math::hdr::gBlue },
+            { {200.,  100., 0., 1.}, math::hdr::gRed<> },
+            { {100., -100., 0., 1.}, math::hdr::gGreen<> },
+            { {400., -100., 0., 1.}, math::hdr::gBlue<> },
         },
     };
     return scene;
@@ -156,14 +156,14 @@ focg::Scene depthBuffer()
     focg::Scene scene;
     scene.triangles = {
         {
-            { {-0.8, -0.8, -0.5, 1.}, math::hdr::gRed  },
-            { { 0.2,  0.0,  0.5, 1.}, math::hdr::gBlue  },
-            { {-0.8,  0.8, -0.5, 1.}, math::hdr::gGreen  },
+            { {-0.8, -0.8, -0.5, 1.}, math::hdr::gRed<>  },
+            { { 0.2,  0.0,  0.5, 1.}, math::hdr::gBlue<> },
+            { {-0.8,  0.8, -0.5, 1.}, math::hdr::gGreen<> },
         },
         {
-            { { 0.8, -0.8, -0.5, 1.}, math::hdr::gCyan  },
-            { {-0.2,  0.0,  0.5, 1.}, math::hdr::gYellow  },
-            { { 0.8,  0.8, -0.5, 1.}, math::hdr::gMagenta  },
+            { { 0.8, -0.8, -0.5, 1.}, math::hdr::gCyan<>  },
+            { {-0.2,  0.0,  0.5, 1.}, math::hdr::gYellow<> },
+            { { 0.8,  0.8, -0.5, 1.}, math::hdr::gMagenta<> },
         }
     };
 
@@ -175,7 +175,8 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
                            bool aDrawSecondCubeBehind = false)
 {
     focg::Scene scene;
-    appendToScene(std::istringstream{focg::gCubeObj}, scene);
+    std::istringstream input{focg::gCubeObj};
+    appendToScene(input, scene);
 
     focg::GraphicsPipeline pipeline;
     pipeline.renderMode = focg::NaivePipeline::Wireframe;
@@ -258,7 +259,8 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
     if (aDrawSecondCubeBehind)
     {
         focg::Scene scene;
-        appendToScene(std::istringstream{focg::gCubeObj}, scene, math::hdr::gBlue);
+        std::istringstream input{focg::gCubeObj};
+        appendToScene(input, scene, math::hdr::gBlue<>);
 
         program.transformation = 
             modelling * math::trans3d::translate(math::Vec<3>{0., 0., -120.})

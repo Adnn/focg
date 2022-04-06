@@ -47,7 +47,7 @@ struct Vertex
     }
 
     HPos pos;
-    math::hdr::Rgb color = math::hdr::gRed;
+    math::hdr::Rgb_d color = math::hdr::gRed<>;
     double depthInverse = 0.;
     HVec normal{0., 0., 0., 0.}; // must have defaults, when creating the vertex set in the obj loader
     TextureCoordinates uv{0., 0.}; // must have defaults, when creating the vertex set in the obj loader
@@ -56,7 +56,7 @@ struct Vertex
     // Then, it does not neet to be default constructible
     struct FragmentInterpolated
     {
-        math::hdr::Rgb color = math::hdr::gRed;
+        math::hdr::Rgb_d color = math::hdr::gRed<>;
         HPos position_c{0., 0., 0., 1.};
         HVec normal_c{0., 0., 0., 0.};
         TextureCoordinates uv{0., 0.};

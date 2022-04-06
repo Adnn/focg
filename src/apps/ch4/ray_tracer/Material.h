@@ -9,11 +9,11 @@ namespace focg {
 
 struct Material
 {
-    math::hdr::Rgb ambientColor;
-    math::hdr::Rgb diffuseColor;
-    math::hdr::Rgb specularColor;
+    math::hdr::Rgb_d ambientColor;
+    math::hdr::Rgb_d diffuseColor;
+    math::hdr::Rgb_d specularColor;
     int phongExponent{1}; // control specular fall-off
-    math::hdr::Rgb reflectionColor{math::hdr::gBlack};
+    math::hdr::Rgb_d reflectionColor{math::hdr::gBlack<>};
 };
 
 

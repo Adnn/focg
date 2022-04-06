@@ -10,10 +10,10 @@ namespace focg {
 
 
 // Forward declaration
-math::hdr::Rgb getRayColor(const Ray & aRay, const Interval aInterval, const Scene & aScene,
-                           int aRecursionLimit, math::hdr::Rgb aBackgroundColor);
+math::hdr::Rgb_d getRayColor(const Ray & aRay, const Interval aInterval, const Scene & aScene,
+                           int aRecursionLimit, math::hdr::Rgb_d aBackgroundColor);
 
-math::hdr::Rgb shade(const Hit & aHit, const Ray & aRay, const Scene & aScene, int aRecursionLimit)
+math::hdr::Rgb_d shade(const Hit & aHit, const Ray & aRay, const Scene & aScene, int aRecursionLimit)
 {
     const Material & material = *aHit.material;
     const math::Position<3> point = aHit.position;
@@ -21,7 +21,7 @@ math::hdr::Rgb shade(const Hit & aHit, const Ray & aRay, const Scene & aScene, i
     math::UnitVec<3> viewDirection{-aRay.direction};
 
     // Ambient color
-    math::hdr::Rgb color = material.ambientColor.cwMul(aScene.ambientLight);
+    math::hdr::Rgb_d color = material.ambientColor.cwMul(aScene.ambientLight);
     
     for(const auto & light : aScene.lights)
     {
@@ -39,7 +39,7 @@ math::hdr::Rgb shade(const Hit & aHit, const Ray & aRay, const Scene & aScene, i
     }
 
     // Mirror
-    if (material.reflectionColor != math::hdr::gBlack)
+    if (material.reflectionColor != math::hdr::gBlack<>)
     {
         // Focg 3rd p87: view direction is in the opposite direction from d (ray direction) in the book.
         math::Vec<3> reflectionDirection = 2 * (viewDirection.dot(normal)) * normal - viewDirection;
@@ -47,16 +47,16 @@ math::hdr::Rgb shade(const Hit & aHit, const Ray & aRay, const Scene & aScene, i
                                                             Interval{Interval::gEpsilon},
                                                             aScene,
                                                             aRecursionLimit,
-                                                            math::hdr::gBlack));
+                                                            math::hdr::gBlack<>));
     }
 
     return color;
 }
 
 
-math::hdr::Rgb getRayColor(const Ray & aRay, const Interval aInterval, const Scene & aScene,
+math::hdr::Rgb_d getRayColor(const Ray & aRay, const Interval aInterval, const Scene & aScene,
                            int aRecursionLimit,
-                           math::hdr::Rgb aBackgroundColor)
+                           math::hdr::Rgb_d aBackgroundColor)
 {
     if (auto hit = (aRecursionLimit > 0 ? aScene.hit(aRay, aInterval) : std::nullopt))
     {
@@ -69,7 +69,7 @@ math::hdr::Rgb getRayColor(const Ray & aRay, const Interval aInterval, const Sce
 }
 
 
-math::hdr::Rgb getRayColor(const Ray& aRay, const Interval aInterval, const Scene& aScene,
+math::hdr::Rgb_d getRayColor(const Ray& aRay, const Interval aInterval, const Scene& aScene,
                            int aRecursionLimit)
 {
     return getRayColor(aRay, aInterval, aScene, aRecursionLimit, aScene.backgroundColor);
