@@ -59,7 +59,7 @@ struct AnimatedScene
     {
         math::Box<double> projected = math::Box<double>::CenterOnOrigin({
             math::makeSizeFromHeight<double>(shownHeight, aViewportRatio), nearPlaneZ - farPlaneZ});
-        projected.origin().z() = nearPlaneZ;
+        projected.origin().z() = farPlaneZ;
 
         return math::trans3d::perspective(nearPlaneZ, farPlaneZ)
                * math::trans3d::orthographicProjection(projected);

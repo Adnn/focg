@@ -207,7 +207,7 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
     math::Box<double> projected = math::Box<double>::CenterOnOrigin({
         math::makeSizeFromHeight<double>(shownHeight, math::getRatio<double>(aResolution)),
         depth});
-    projected.origin().z() = nearPlaneZ;
+    projected.origin().z() = farPlaneZ;
     std::cout << "Projected box in world: " << projected << "\n";
 
     math::AffineMatrix<4> orthographic = math::trans3d::orthographicProjection(projected);

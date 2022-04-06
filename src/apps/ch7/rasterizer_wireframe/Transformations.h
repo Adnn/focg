@@ -13,9 +13,8 @@ math::AffineMatrix<4> viewportTransform(const math::Size<2, int> aImageResolutio
 {
     using Number = math::real_number;
     return math::trans3d::window(
-            // Origin of the box on z is **positive** 1, because of the right handed frame.
-            math::Box<double>{{-1., -1., 1.}, {2., 2., 2.}},
-            math::Box<double>{{-0.5, -0.5, 1.},
+            math::Box<double>{{-1., -1., -1.}, {2., 2., 2.}},
+            math::Box<double>{{-0.5, -0.5, -1.},
                               {
                                   static_cast<Number>(aImageResolution.width()),
                                   static_cast<Number>(aImageResolution.height()),
@@ -28,8 +27,7 @@ math::AffineMatrix<4> orthographicProjection(const math::Box<double> & aOrthogra
 {
     return math::trans3d::window(
             aOrthographicViewVolume,
-            // Origin of the box on z is **positive** 1, because of the right handed frame.
-            math::Box<double>{{-1., -1., 1.}, {2., 2., 2.}});
+            math::Box<double>{{-1., -1., -1.}, {2., 2., 2.}});
 }
 
 
@@ -62,7 +60,7 @@ math::Matrix<4, 4> perspectiveToViewport(double aNearPlaneZ, double aFarPlaneZ,
     const double t = std::abs(aNearPlaneZ) * tan(aVerticalFieldOfView / 2.);
     const double r = t * aImageResolution.width() / aImageResolution.height();
 
-    const math::Box<double> orthographicViewVolume{{-r, -t, aNearPlaneZ}, {2*r, 2*t, aNearPlaneZ - aFarPlaneZ}};
+    const math::Box<double> orthographicViewVolume{{-r, -t, aFarPlaneZ}, {2*r, 2*t, aNearPlaneZ - aFarPlaneZ}};
     return perspectiveProjection(orthographicViewVolume) * viewportTransform(aImageResolution);
 }
 

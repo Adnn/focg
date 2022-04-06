@@ -46,7 +46,7 @@ inline arte::Image<math::sdr::Rgb> NaivePipeline::traverse(const Scene & aScene,
         //{static_cast<ad::math::Size<2, double>>(aResolution), 500.},
 
         // A Q&D solution is to restrain the view volume by some arbitrary amount
-        {-0.45, -0.45, 500.},
+        {-0.45, -0.45, -500.},
         {static_cast<math::Size<2, double>>(aResolution) - math::Size<2, double>{0.1, 0.1}, 1000.},
     }};
 

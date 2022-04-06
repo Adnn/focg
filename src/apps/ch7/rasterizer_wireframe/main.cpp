@@ -39,7 +39,7 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
 
 
     math::AffineMatrix<4> viewingTransform =
-        focg::orthographicProjection(math::Box<double>{ {0., 0., 300.}, {300., 300., 300.} })
+        focg::orthographicProjection(math::Box<double>{ {0., 0., 0.}, {300., 300., 300.} })
         * focg::viewportTransform(aResolution)
         ;
     rasterize(scene, viewingTransform, aResolution).saveFile(aImagePath / "ch7_rasterized_ortho.ppm");
@@ -49,14 +49,14 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
 
     viewingTransform =
           focg::cameraTransform(cameraPosition, gazeDirection)
-        * focg::orthographicProjection(math::Box<double>{ {-150., -150., 0.}, {300., 300., 300.} })
+        * focg::orthographicProjection(math::Box<double>{ {-150., -150., -300.}, {300., 300., 300.} })
         * focg::viewportTransform(aResolution)
         ;
     rasterize(scene, viewingTransform, aResolution).saveFile(aImagePath / "ch7_rasterized_ortho_moved.ppm");
 
     math::Matrix<4, 4> perspectiveViewingTransform =
           focg::cameraTransform(cameraPosition, gazeDirection)
-        * focg::perspectiveProjection(math::Box<double>{ {-150., -150., -200.}, {300., 300., 300.} })
+        * focg::perspectiveProjection(math::Box<double>{ {-150., -150., -500.}, {300., 300., 300.} })
         * focg::viewportTransform(aResolution)
         ;
     rasterize(scene, perspectiveViewingTransform, aResolution).saveFile(aImagePath / "ch7_rasterized_perpsective.ppm");
