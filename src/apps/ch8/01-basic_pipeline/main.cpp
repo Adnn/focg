@@ -237,6 +237,11 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
               << "\n\nOpenGL Complete projection:\n" << (openGLPerspectiveProjection).transpose() 
               << "\n";
 
+    // The only difference with the openGL perspective projection is that it 
+    // handles going from right handed to left handed space.
+    // Assert this statement holds true.
+    assert(customProjection * math::AffineMatrix<4>{math::trans3d::scale(1., 1., -1.)} == openGLPerspectiveProjection);
+
 
     program.transformation = 
         modelling 
