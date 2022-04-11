@@ -23,7 +23,7 @@ class FocgConan(ConanFile):
     }
 
     requires = (
-        ("graphics/115fc983cf@adnn/develop"),
+        ("graphics/a42c573849@adnn/develop"),
         ("math/0541d9cdd9@adnn/develop"),
     )
 
