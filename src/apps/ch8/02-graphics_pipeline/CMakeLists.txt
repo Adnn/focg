@@ -37,6 +37,8 @@ find_package(Graphics REQUIRED COMPONENTS arte graphics platform resource)
 
 target_link_libraries(${TARGET_NAME}
     PRIVATE
+        focg-assets
+
         ad::arte
         ad::graphics
         ad::math

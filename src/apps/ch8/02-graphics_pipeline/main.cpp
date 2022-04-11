@@ -3,9 +3,8 @@
 #include "ObjModels.h"
 #include "ShadingRenderer.h"
 
+#include <focg-assets/Assets.h>
 #include <platform/Filesystem.h>
-
-#include <resource/PathProvider.h>
 
 #include <cstdlib>
 
@@ -17,7 +16,12 @@ void renderAll(filesystem::path aImagePath, math::Size<2, int> aResolution)
 {
     auto readFile = [](const filesystem::path & aPath)
     {
-        std::ifstream ifs{resource::pathFor(aPath).string()};
+        auto file = focg::gAssetFolderPath / aPath;
+        if (!exists(file))
+        {
+            throw std::runtime_error{file.string() + " does not exist."};
+        }
+        std::ifstream ifs{file.string()};
         std::stringstream ss;
         ss << ifs.rdbuf();
         return ss.str();
