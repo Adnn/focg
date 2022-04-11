@@ -92,7 +92,7 @@ interpolateLinear(std::initializer_list<Interpolant<T_value>> aInterpolants, T_a
     {
         if constexpr(math::is_position_v<decltype(accum)>) 
         {
-            accum += it->weight * aAccessor(it->value).as<math::Vec>(); 
+            accum += it->weight * aAccessor(it->value).template as<math::Vec>(); 
         }
         else
         {
