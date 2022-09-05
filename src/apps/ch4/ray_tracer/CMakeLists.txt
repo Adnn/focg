@@ -35,13 +35,13 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 ##
 
 find_package(Math REQUIRED COMPONENTS math)
-find_package(Graphics REQUIRED COMPONENTS arte platform)
+find_package(Graphics REQUIRED COMPONENTS arte)
 
 target_link_libraries(${TARGET_NAME}
     PRIVATE
         ad::arte
         ad::math
-        ad::platform)
+)
 
 
 ##

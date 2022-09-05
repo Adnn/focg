@@ -10,7 +10,7 @@
 using namespace ad;
 
 
-void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
+void render(std::filesystem::path aImagePath, math::Size<2, int> aResolution)
 {
     focg::Image viewport{
         math::Rectangle<double>{
@@ -29,11 +29,11 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
 
     math::Position<3> perspectivePosition{-0., 600., 1000.};
     focg::PerspectiveView perspective{
-        perspectivePosition, 
+        perspectivePosition,
         math::Position<3>{0., 0., -100.} - perspectivePosition,
         {0., 1., 0.},
         viewport,
-        800 
+        800
     };
 
     math::hdr::Rgb_d sphereSpecularColor{math::hdr::gWhite<> * 0.5};
@@ -87,7 +87,7 @@ void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
             {math::hdr::gWhite<> * 0.45, math::Position<3>{3000., 10000., 0.}},
 
         },
-        ambientLight 
+        ambientLight
     };
 
     //rayTrace(scene, orthographic).saveFile(aImagePath);

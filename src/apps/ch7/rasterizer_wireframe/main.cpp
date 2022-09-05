@@ -6,7 +6,6 @@
 #include <math/Color.h>
 
 #include <arte/Image.h>
-#include <platform/Filesystem.h>
 
 #include <cstdlib>
 
@@ -14,7 +13,7 @@
 using namespace ad;
 
 
-void render(filesystem::path aImagePath, math::Size<2, int> aResolution)
+void render(std::filesystem::path aImagePath, math::Size<2, int> aResolution)
 {
     // Defines a cube from [100, 100, 100] to [200, 200, 200]
     focg::Scene scene{

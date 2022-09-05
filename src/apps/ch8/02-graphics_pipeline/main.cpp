@@ -4,7 +4,6 @@
 #include "ShadingRenderer.h"
 
 #include <focg-assets/Assets.h>
-#include <platform/Filesystem.h>
 
 #include <cstdlib>
 
@@ -12,9 +11,9 @@
 using namespace ad;
 
 
-void renderAll(filesystem::path aImagePath, math::Size<2, int> aResolution)
+void renderAll(std::filesystem::path aImagePath, math::Size<2, int> aResolution)
 {
-    auto readFile = [](const filesystem::path & aPath)
+    auto readFile = [](const std::filesystem::path & aPath)
     {
         auto file = focg::gAssetFolderPath / aPath;
         if (!exists(file))
@@ -29,7 +28,7 @@ void renderAll(filesystem::path aImagePath, math::Size<2, int> aResolution)
 
 
     // Cube
-    filesystem::path animationFolder = aImagePath / "ch8-demo-anim-cube";
+    std::filesystem::path animationFolder = aImagePath / "ch8-demo-anim-cube";
     create_directory(animationFolder);
     focg::renderDemoScene(animationFolder);
 

@@ -12,8 +12,6 @@
 #include <math/Color.h>
 #include <math/Transformations.h>
 
-#include <platform/Filesystem.h>
-
 #include <sstream>
 
 #include <cstdlib>
@@ -22,7 +20,7 @@
 using namespace ad;
 
 
-void lineTest(filesystem::path aImagePath, math::Size<2, int> aResolution)
+void lineTest(std::filesystem::path aImagePath, math::Size<2, int> aResolution)
 {
     focg::Scene scene{
         { // vector
@@ -64,7 +62,7 @@ void lineTest(filesystem::path aImagePath, math::Size<2, int> aResolution)
 }
 
 
-void rgbTriangle(filesystem::path aImagePath, math::Size<2, int> aResolution)
+void rgbTriangle(std::filesystem::path aImagePath, math::Size<2, int> aResolution)
 {
     focg::Scene scene;
     scene.triangles = {
@@ -171,7 +169,7 @@ focg::Scene depthBuffer()
 }
 
 
-void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> aResolution, 
+void renderPerspectiveCube(std::filesystem::path aImageFilePath, math::Size<2, int> aResolution, 
                            bool aDrawSecondCubeBehind = false)
 {
     focg::Scene scene;
@@ -282,7 +280,7 @@ void renderPerspectiveCube(filesystem::path aImageFilePath, math::Size<2, int> a
 
 void renderImage(const focg::Scene & aScene,
                  const focg::NaivePipeline & aPipeline,
-                 filesystem::path aImageFilePath,
+                 std::filesystem::path aImageFilePath,
                  math::Size<2, int> aResolution)
 {
     aPipeline.traverse(aScene, aResolution)
@@ -291,7 +289,7 @@ void renderImage(const focg::Scene & aScene,
 
 void renderImage(const focg::Scene & aScene,
                  const focg::GraphicsPipeline & aPipeline,
-                 filesystem::path aImageFilePath,
+                 std::filesystem::path aImageFilePath,
                  math::Size<2, int> aResolution)
 {
     using Buffer = focg::ImageBuffer<>;
@@ -316,7 +314,7 @@ void renderImage(const focg::Scene & aScene,
 }
 
 
-void renderAll(filesystem::path aImagePath, math::Size<2, int> aResolution)
+void renderAll(std::filesystem::path aImagePath, math::Size<2, int> aResolution)
 {
 
     lineTest(aImagePath, aResolution);

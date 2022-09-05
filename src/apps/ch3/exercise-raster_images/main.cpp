@@ -2,7 +2,7 @@
 
 #include <arte/Image.h>
 
-#include <platform/Filesystem.h>
+#include <filesystem>
 
 #include <cstdlib>
 
@@ -10,11 +10,11 @@
 using namespace ad;
 
 
-void exercise_1(filesystem::path aImagePath)
+void exercise_1(std::filesystem::path aImagePath)
 {
     auto colorImage = arte::Image<math::sdr::Rgb>::LoadFile(aImagePath);
-    filesystem::path folder = aImagePath.parent_path();
-    filesystem::path stem = aImagePath.stem();
+    std::filesystem::path folder = aImagePath.parent_path();
+    std::filesystem::path stem = aImagePath.stem();
 
     BayerPattern pattern{{
         {{ // LinePattern::vector

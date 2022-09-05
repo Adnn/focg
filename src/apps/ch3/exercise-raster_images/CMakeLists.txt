@@ -19,11 +19,11 @@ set_target_properties(${TARGET_NAME} PROPERTIES
                       VERSION "${${PROJECT_NAME}_VERSION}"
 )
 
-find_package(Graphics REQUIRED COMPONENTS arte platform)
+find_package(Graphics CONFIG REQUIRED COMPONENTS arte)
 
 target_link_libraries(${TARGET_NAME}
     PRIVATE
         ad::arte
-        ad::platform)
+)
 
 install(TARGETS ${TARGET_NAME})
