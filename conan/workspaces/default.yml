@@ -1,0 +1,10 @@
+editables:
+    graphics/6612c7d109@adnn/develop:
+        path: ../../../graphics/conan
+    math/ad7a910017@adnn/develop:
+        path: ../../../math/conan
+    focg/local:
+        path: ../../../focg/conan
+layout: layout
+workspace_generator: cmake
+root: focg/local
