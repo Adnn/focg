@@ -1,5 +1,6 @@
 #include "../01-convolution_tests/Convolution.h"
 #include "../01-convolution_tests/Filters.h"
+#include "../01-convolution_tests/Reconstruction.h"
 
 #include <arte/Image.h>
 
@@ -50,6 +51,50 @@ void filter(std::filesystem::path aImagePath)
         auto filtered = focg::filterSeparable2D(sharpen, image);
 
         tonemap(filtered).saveFile((stem.string() + "_sharpen.ppm"));
+    }
+
+    {
+        auto resampled = HdrImage::makeUninitialized(image.dimensions() / 3);
+        {
+            focg::Filter filter{
+                [](double x){ return focg::gaussian(x); },
+                3.0,
+            };
+
+            focg::resampleSeparable2D(image, resampled, filter);
+
+            tonemap(resampled).saveFile((stem.string() + "_downscale_filter.ppm"));
+        }
+
+        {
+            focg::pointResample2D(image, resampled);
+            tonemap(resampled).saveFile((stem.string() + "_downscale_closest.ppm"));
+        }
+    }
+
+
+    {
+        auto resampled = HdrImage::makeUninitialized(image.dimensions() * 3);
+        {
+            // Introduces a darker grid artifact
+            //focg::Filter filter{
+            //    [](double x){ return focg::gaussian(x, 1., 1./3); },
+            //    3. * 1./3,
+            //};
+            focg::Filter filter{
+                [](double x){ return focg::gaussian(x, 1., 2./3); },
+                3. * 2./3,
+            };
+
+            focg::resampleSeparable2D(image, resampled, filter);
+
+            tonemap(resampled).saveFile((stem.string() + "_upscale_filter.ppm"));
+        }
+
+        {
+            focg::pointResample2D(image, resampled);
+            tonemap(resampled).saveFile((stem.string() + "_upscale_closest.ppm"));
+        }
     }
 }
 

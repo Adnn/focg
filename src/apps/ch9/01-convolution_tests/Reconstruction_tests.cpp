@@ -28,7 +28,7 @@ SCENARIO("1D box reconstruction")
             }
         };
 
-        focg::Filter<double> box{
+        focg::Filter box{
             f,
             2.0,
         };
@@ -88,7 +88,7 @@ SCENARIO("1D tent reconstruction")
             }
         };
 
-        focg::Filter<double> tent{
+        focg::Filter tent{
             std::bind(f, std::placeholders::_1, 1.0),
             1.0,
         };

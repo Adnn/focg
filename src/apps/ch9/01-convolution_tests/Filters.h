@@ -12,10 +12,12 @@ namespace focg {
 
 
 template <class T_value = double>
-T_value gaussian(T_value x, T_value sigma = 1)
+T_value gaussian(T_value x, T_value sigma = 1, T_value scale = 1)
 {
-    return T_value{1} / (sigma * std::sqrt(2 * std::numbers::pi_v<T_value>))
+    x = x / scale;
+    T_value evaluation = T_value{1} / (sigma * std::sqrt(2 * std::numbers::pi_v<T_value>))
         * std::exp(-std::pow(x, 2) / (2 * std::pow(sigma, 2)));
+    return evaluation / scale;
 }
 
 
@@ -27,7 +29,7 @@ std::array<T_value, 2 * N_radius + 1> discreteGaussian(T_value sigma = 1, T_valu
     int v2 = -static_cast<int>(N_radius);
     for (int i = -(int)N_radius; i <= (int)N_radius; ++i)
     {
-        result[i + (int)N_radius] = gaussian(static_cast<T_value>(i) / scale, sigma) / scale;
+        result[i + (int)N_radius] = gaussian(static_cast<T_value>(i), sigma, scale);
     }
     return result;
 }
