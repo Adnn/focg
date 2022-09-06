@@ -34,7 +34,7 @@ std::array<T_value, 2 * N_radius + 1> discreteGaussian(T_value sigma = 1, T_valu
 
 
 // See FoCG 3rd p209
-// I am not sure of this one, plus it makes a lot of artefacts (probably because of unsigned arithmetic)
+// I am not 100% sur of my understanding of the discrete impulse in this context, but it does sharpen the image.
 template <unsigned int N_radius, class T_value = double>
 std::array<T_value, 2 * N_radius + 1> discreteSharpen(T_value alpha, T_value sigma = 1, T_value scale = 1)
 {
