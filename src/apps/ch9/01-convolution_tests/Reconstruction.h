@@ -39,7 +39,7 @@ T_value reconstruct1D(T_sequence aSequence, Filter<T_value> aFilter, double x)
     // IMPORTANT FoCG 3rd p200:
     // notes that if a point fall exactly at distance r from x, it will be left out
     // Not sure if that is valid only for lower bound ? both bounds ?
-    for (std::size_t i = std::max<std::size_t>(std::ceil(x - r), 0);
+    for (std::size_t i = std::max<double>(std::ceil(x - r), 0);
          i <= std::min<std::size_t>(std::floor(x + r), std::size(aSequence) - 1);
          ++i)
     {
