@@ -50,6 +50,13 @@ T_value reconstruct1D(T_sequence aSequence, Filter aFilter, double x)
 }
 
 
+template <std::size_t N, class T>
+math::Size<2, std::size_t> dimensions(const math::Matrix<N, N, T> &)
+{
+    return math::Size<2, std::size_t>{N, N};
+}
+
+
 template <class T_pixelFormat>
 math::Size<2, std::size_t> dimensions(const arte::Image<T_pixelFormat> & a)
 {
@@ -77,10 +84,14 @@ void resampleSeparable2D(const T_inSequence2D & aInput,
     // Resample all the rows of the source
     for (std::size_t i = 0; i != height(aInput); ++i)
     {
+        // For each pixel in the (intermediary) output row
         for (std::size_t j = 0; j != width(aOutput); ++j)
         {
             intermediary[j][i] = T_value{}; // assign zero
+            // x coordinate of the output pixel, expressed in the input grid
             double x = x0 + j * delta.x();
+            // For each pixel **center** which falls within the radius of the filter
+            // (the filter being centered on x, i.e. the output pixel)
             for (std::size_t k = std::max<double>(std::ceil(x - r), 0);
                  k <= std::min<std::size_t>(std::floor(x + r), width(aInput) - 1);
                  ++k)

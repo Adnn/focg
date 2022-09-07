@@ -50,5 +50,30 @@ std::array<T_value, 2 * N_radius + 1> discreteSharpen(T_value alpha, T_value sig
 }
 
 
+template <class T_value = double>
+T_value catmullRom(T_value x, T_value scale = 1)
+{
+    x = x / scale;
+    T_value evaluation = [&]() -> T_value
+    {
+        auto xp = std::abs(x);
+        if ( xp <= 1)
+        {
+            return -3 * std::pow(1 - xp, 3) + 4 * std::pow(1 - xp, 2) + 1 - xp;
+        }
+        else if (xp <= 2)
+        {
+            return std::pow(2 - xp, 3) - std::pow(2 - xp, 2);
+        }
+        else
+        {
+            return 0;
+        }
+    }() / 2;
+    return evaluation / scale;
+}
+
+
+
 } // namespace focg
 } // namespace ad

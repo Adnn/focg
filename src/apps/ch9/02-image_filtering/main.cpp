@@ -76,19 +76,28 @@ void filter(std::filesystem::path aImagePath)
     {
         auto resampled = HdrImage::makeUninitialized(image.dimensions() * 3);
         {
-            // Introduces a darker grid artifact
-            //focg::Filter filter{
-            //    [](double x){ return focg::gaussian(x, 1., 1./3); },
-            //    3. * 1./3,
-            //};
+            // Introduces a darker grid artifact, because the filter is NOT ripple-free
+            // see FoCG 3rd p205
             focg::Filter filter{
-                [](double x){ return focg::gaussian(x, 1., 2./3); },
-                3. * 2./3,
+                [](double x){ return focg::gaussian(x, 1., 1./3); },
+                3. * 1./3, // radius 1
             };
 
             focg::resampleSeparable2D(image, resampled, filter);
 
-            tonemap(resampled).saveFile((stem.string() + "_upscale_filter.ppm"));
+            tonemap(resampled).saveFile((stem.string() + "_upscale_filter_ripples.ppm"));
+        }
+
+        {
+            // Catmull Rom is ripple free
+            focg::Filter filter{
+                [](double x){ return focg::catmullRom(x); },
+                2.
+            };
+
+            focg::resampleSeparable2D(image, resampled, filter);
+
+            tonemap(resampled).saveFile((stem.string() + "_upscale_filter_catmullrom.ppm"));
         }
 
         {
@@ -97,6 +106,43 @@ void filter(std::filesystem::path aImagePath)
         }
     }
 }
+
+
+// A good grid to debug ripple effects on filters
+void debuggrid()
+{
+    using SdrImage = arte::Image<math::sdr::Rgb>;
+    using HdrImage = arte::Image<math::hdr::Rgb_f>;
+
+    math::hdr::Rgb_f r = {0.5f, 0.f, 0.f};
+    math::Matrix<6, 6, math::hdr::Rgb_f> image{
+        r, r, r, r, r, r,
+        r, r, r, r, r, r,
+        r, r, r, r, r, r,
+        r, r, r, r, r, r,
+        r, r, r, r, r, r,
+        r, r, r, r, r, r,
+    };
+
+    {
+        auto resampled = HdrImage::makeUninitialized(math::Size<2, int>{focg::dimensions(image)} * 4);
+        {
+            // Introduces a darker grid artifact
+            focg::Filter filter{
+                [](double x){ return focg::gaussian(x, 1., 1./3); },
+                1.,
+            };
+            focg::resampleSeparable2D(image, resampled, filter);
+            tonemap(resampled).saveFile(("dbg_upscale_filter_gaussian.ppm"));
+        }
+
+        {
+            focg::pointResample2D(image, resampled);
+            tonemap(resampled).saveFile(("dbg_upscale_closest.ppm"));
+        }
+    }
+}
+
 
 int main(int argc, char ** argv)
 {
@@ -107,6 +153,7 @@ int main(int argc, char ** argv)
     }
 
     filter(argv[1]);
+    //debuggrid();
 
     return EXIT_SUCCESS;
 }
