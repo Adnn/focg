@@ -53,7 +53,7 @@ T_value reconstruct1D(T_sequence aSequence, Filter aFilter, double x)
 template <int N, class T>
 math::Size<2, std::size_t> dimensions(const math::Matrix<N, N, T> &)
 {
-    return math::Size<2, std::size_t>{N, N};
+    return math::Size<2, std::size_t>{(std::size_t)N, (std::size_t)N};
 }
 
 
