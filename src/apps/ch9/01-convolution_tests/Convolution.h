@@ -69,23 +69,23 @@ constexpr std::array<T_value, 1> gDiscreteImpule{T_value{1}};
 //
 // 2D
 //
-template <std::size_t N_rows, std::size_t N_cols, class T_value>
+template <int N_rows, int N_cols, class T_value>
 math::Rectangle<std::size_t> rectangle(const math::Matrix<N_rows, N_cols, T_value> & a)
 {
     return {
         {0u, 0u},
         // Invert here, to respect the convention width then height
-        {N_cols, N_rows},
+        {(std::size_t)N_cols, (std::size_t)N_rows},
     };
 }
 
-template <std::size_t N_rows, std::size_t N_cols, class T_value>
+template <int N_rows, int N_cols, class T_value>
 std::size_t width(const math::Matrix<N_rows, N_cols, T_value> & a)
 {
     return N_cols;
 }
 
-template <std::size_t N_rows, std::size_t N_cols, class T_value>
+template <int N_rows, int N_cols, class T_value>
 std::size_t height(const math::Matrix<N_rows, N_cols, T_value> & a)
 {
     return N_rows;
@@ -106,7 +106,7 @@ std::size_t height(const arte::Image<T_pixelFormat> & a)
 }
 
 
-template <std::size_t N_leftSize, class T_value, class T_rightSequence2D>
+template <int N_leftSize, class T_value, class T_rightSequence2D>
 T_value convolveDiscrete2D(const math::Matrix<N_leftSize, N_leftSize, T_value> & a,
                            const T_rightSequence2D & b,
                            math::Position<2, std::size_t> aPosition)
@@ -147,7 +147,7 @@ T_value convolveDiscrete2D(const math::Matrix<N_leftSize, N_leftSize, T_value> &
 }
 
 
-template <std::size_t N_leftSize, class T_value, class T_rightSequence2D>
+template <int N_leftSize, class T_value, class T_rightSequence2D>
 T_rightSequence2D convolveSequence2D(const math::Matrix<N_leftSize, N_leftSize, T_value> & a,
                                      const T_rightSequence2D & b)
 {
