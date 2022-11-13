@@ -111,14 +111,14 @@ void rasterizeLine(
 // Notes:
 // Implementations following FoCG 3rd 8.1.2 p166.
 //
-// The rasterization only generate a fragment if the pixel center is inside the triangle 
+// The rasterization only generate a fragment if the pixel center is inside the triangle
 // (or exactly on its edge).
 
 
 /// \note aRaster is passed in because of legacy API of NaivePipeline,
 /// otherwise it makes more sense that the fragment callback knows the target.
 template <class T_vertex, class T_raster, class F_postRasterization>
-void rasterizeIncremental(const Triangle<T_vertex> & aTriangle, 
+void rasterizeIncremental(const Triangle<T_vertex> & aTriangle,
                           T_raster & aRaster,
                           const F_postRasterization & aFragmentCallback)
 {
@@ -138,7 +138,7 @@ void rasterizeIncremental(const Triangle<T_vertex> & aTriangle,
     math::Vec<3, double> previousNumerators{
         fa({xMinRound, yMinRound, 0., 1.}),
         fb({xMinRound, yMinRound, 0., 1.}),
-        fc({xMinRound, yMinRound, 0., 1.}) 
+        fc({xMinRound, yMinRound, 0., 1.})
     };
 
     const math::Vec<3, double> denominators{
@@ -150,7 +150,7 @@ void rasterizeIncremental(const Triangle<T_vertex> & aTriangle,
     // Test for degenerate triangle (zero area), which should not be rasterized.
     if (denominators.x() == 0. || denominators.y() == 0. || denominators.z() == 0.)
     {
-        return; 
+        return;
     }
 
     const math::Vec<3> xIncrements{
@@ -195,6 +195,9 @@ void rasterizeIncremental(const Triangle<T_vertex> & aTriangle,
                         + beta  * aTriangle.b.depthInverse
                         + gamma * aTriangle.c.depthInverse;
                     // TODO Understand why the depth is interpolated without perspective correction?
+                    // Because it is perspective-correct to interpolate all quantities that are
+                    // divided by w (the homogeneous coordinate), and z has been divided by w.
+                    // see: FoCG 4th p257 bottom
                     auto z = alpha * aTriangle.a.pos.z()
                            + beta  * aTriangle.b.pos.z()
                            + gamma * aTriangle.c.pos.z();
@@ -206,7 +209,8 @@ void rasterizeIncremental(const Triangle<T_vertex> & aTriangle,
                         alpha * aTriangle.a.depthInverse,
                         beta  * aTriangle.b.depthInverse,
                         gamma * aTriangle.c.depthInverse
-                    } / depthInverse;
+                    }
+                    / depthInverse; // IMPORTANT: divided by depth inverse
 
                     // Perspective corrected interpolation of varying attributes
                     typename T_vertex::FragmentInterpolated interpolated = interpolateLinear({
