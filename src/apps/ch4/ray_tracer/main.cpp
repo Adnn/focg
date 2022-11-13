@@ -46,7 +46,7 @@ void render(std::filesystem::path aImagePath, math::Size<2, int> aResolution)
     magentaMaterial->specularColor = math::hdr::gBlack<>;
 
     auto blueMaterial = std::make_shared<focg::Material>(*cyanMaterial);
-    blueMaterial->ambientColor = blueMaterial->diffuseColor = math::hdr::Rgb{77./255, 100./255, 141./255};
+    blueMaterial->ambientColor = blueMaterial->diffuseColor = math::hdr::Rgb_d{77./255, 100./255, 141./255};
     blueMaterial->specularColor = math::hdr::gWhite<> * 0.8;
     blueMaterial->phongExponent = 100;
     blueMaterial->reflectionColor = math::hdr::gWhite<> * 0.4;

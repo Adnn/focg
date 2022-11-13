@@ -33,7 +33,7 @@ public:
          math::Vec<3> aUpDirection,
          Image aImage) :
         mEyePoint{aEyePosition},
-        mBase{math::OrthonormalBase<3>::MakeFromTwoVectors(-aViewDirection, aUpDirection)},
+        mBase{math::OrthonormalBase<3>::MakeFromWUp(-aViewDirection, aUpDirection)},
         mImage{std::move(aImage)}
     {}
 
@@ -79,7 +79,7 @@ public:
          math::Vec<3> aViewDirection,
          math::Vec<3> aUpDirection,
          Image aImage,
-         double aImagePlaneDistance) : 
+         double aImagePlaneDistance) :
             View{aEyePosition, aViewDirection, aUpDirection, aImage},
             mImagePlaneDistance{aImagePlaneDistance}
     {}

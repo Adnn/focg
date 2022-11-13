@@ -20,8 +20,8 @@ class FocgConan(ConanFile):
     }
 
     requires = (
-        ("graphics/5bf5ee7f2c@adnn/develop"),
-        ("math/96fbbb3dcc@adnn/develop"),
+        ("graphics/aa960a2385@adnn/develop"),
+        ("math/541fce5f6a@adnn/develop"),
 
         ("catch2/3.1.0"),
     )
@@ -30,5 +30,5 @@ class FocgConan(ConanFile):
     generators = "CMakeDeps", "CMakeToolchain"
 
 
-    python_requires="shred_conan_base/0.0.3@adnn/stable"
+    python_requires="shred_conan_base/0.0.5@adnn/stable"
     python_requires_extend="shred_conan_base.ShredBaseConanFile"

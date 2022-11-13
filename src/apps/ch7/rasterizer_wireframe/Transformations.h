@@ -44,7 +44,7 @@ math::AffineMatrix<4> cameraTransform(math::Position<3> aCameraPosition,
 {
     math::Frame<3> cameraFrame{
         aCameraPosition,
-        math::OrthonormalBase<3>::MakeFromTwoVectors(-aGazeDirection, aUpDirection)
+        math::OrthonormalBase<3>::MakeFromWUp(-aGazeDirection, aUpDirection)
     };
 
     return math::trans3d::canonicalToFrame(cameraFrame);

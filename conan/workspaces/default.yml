@@ -1,7 +1,7 @@
 editables:
-    graphics/6612c7d109@adnn/develop:
+    graphics/aa960a2385@adnn/develop:
         path: ../../../graphics/conan
-    math/ad7a910017@adnn/develop:
+    math/541fce5f6a@adnn/develop:
         path: ../../../math/conan
     focg/local:
         path: ../../../focg/conan
